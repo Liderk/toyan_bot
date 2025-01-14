@@ -1,9 +1,16 @@
 from datetime import datetime
 
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, TIMESTAMP, DATETIME, SmallInteger
-from sqlalchemy.orm import declarative_base, Mapped, mapped_column
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, TIMESTAMP, DATETIME, SmallInteger, ForeignKey
+from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship
 
 Base = declarative_base()
+
+
+class Team(Base):
+    __tablename__ = 'users_team'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(64), unique=True)
+    recruit: Mapped[bool] = mapped_column(Boolean, default=True)
 
 
 class User(Base):
@@ -20,9 +27,12 @@ class User(Base):
     last_login: Mapped[datetime] = mapped_column(DATETIME, nullable=True)
     date_joined: Mapped[datetime] = mapped_column(DATETIME, nullable=False)
     password: Mapped[str] = mapped_column(String(128), nullable=True, default='')
-    team: Mapped[str] = mapped_column(String(100), nullable=True)
     is_commander: Mapped[bool] = mapped_column(Boolean, default=False)
+    responsible_person: Mapped[bool] = mapped_column(Boolean, default=False)
     telegram_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    telegram_username: Mapped[str] = mapped_column(String(256), nullable=True, default='')
+    team_id: Mapped[int] = mapped_column(Integer, ForeignKey('users_team.id'))
+    team_rel: Mapped[Team] = relationship('Team')
 
 
 class Games(Base):
