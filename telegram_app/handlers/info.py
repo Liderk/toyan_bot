@@ -1,26 +1,32 @@
 import asyncio
 
 from aiogram import Router, F
-from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.chat_action import ChatActionSender
 
+from telegram_app.filters.auth_filter import AuthFilter
 from telegram_app.init_bot import bot
 from telegram_app.keyboards.inline_info_kb import create_info_inline_kb
 from telegram_app.orm.utils import get_nearest_game, get_nearest_event, get_games_by_current_month, \
     get_events_by_current_month
-from telegram_app.utils.constants import Commands, MainKeyboardCommands
+from telegram_app.utils.constants import Commands, MainKeyboardCommands, EventsInfo
 
 info_router = Router()
+info_router.message.filter(AuthFilter())
+info_router.callback_query.filter(AuthFilter())
 
 
 async def get_nearest_event_data():
     event = await get_nearest_event()
+    if event is None:
+        return f'Ближайших мероприятий нет'
     return f'{event.name}, {event.event_type}, {event.descriptions}, {event.start_date}'
 
 
 async def get_nearest_game_data():
     game = await get_nearest_game()
+    if game is None:
+        return f'Ближайших игр нет'
     return f'{game.name}, {game.start_date}, {game.city}'
 
 
@@ -38,10 +44,10 @@ async def get_data_for_events_by_current_month():
 
 
 INFO_MENU = {
-    1: {Commands.INFO: 'Ближайшая игра', 'answer': get_nearest_game_data},
-    2: {Commands.INFO: 'Ближайшее мероприятие', 'answer': get_nearest_event_data},
-    3: {Commands.INFO: 'Игры в этом месяце', 'answer': get_data_for_games_by_current_month},
-    4: {Commands.INFO: 'Мероприятия в этом месяце', 'answer': get_data_for_events_by_current_month},
+    1: {Commands.INFO: EventsInfo.nearest_game, 'answer': get_nearest_game_data},
+    2: {Commands.INFO: EventsInfo.nearest_event, 'answer': get_nearest_event_data},
+    3: {Commands.INFO: EventsInfo.month_games, 'answer': get_data_for_games_by_current_month},
+    4: {Commands.INFO: EventsInfo.month_event, 'answer': get_data_for_events_by_current_month},
 }
 
 

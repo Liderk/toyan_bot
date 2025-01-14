@@ -3,9 +3,9 @@ from aiogram.types import BotCommand, BotCommandScopeDefault
 from init_bot import bot, dp, scheduler
 from handlers.main import main_router
 from telegram_app.handlers.admin import admin_router
+from telegram_app.handlers.channel import channel_router
 from telegram_app.handlers.info import info_router
 from telegram_app.handlers.register import register_router
-from telegram_app.middlewares.user_auth_middleware import UserCheckMiddleware
 from telegram_app.orm.utils import get_admin_ids
 from telegram_app.utils.constants import Commands
 
@@ -24,9 +24,9 @@ async def set_commands():
 
 async def on_startup() -> None:
     await set_commands()
-    admin_ids = await get_admin_ids()
-    for admin_id in admin_ids:  # первый бот, для простоты использую for, далее переписать на рассылку
-        await bot.send_message(chat_id=admin_id, text='Бот запущен!')
+    # admin_ids = await get_admin_ids()
+    # for admin_id in admin_ids:  # первый бот, для простоты использую for, далее переписать на рассылку
+    #     await bot.send_message(chat_id=admin_id, text='Бот запущен!')
 
 
 async def on_shutdown() -> None:
@@ -41,8 +41,8 @@ async def main():
     dp.startup.register(on_startup)
     dp.shutdown.register(on_shutdown)
 
-    dp.update.outer_middleware(UserCheckMiddleware())
-    dp.include_routers(main_router, register_router, info_router, admin_router)
+    # dp.update.outer_middleware(UserCheckMiddleware())
+    dp.include_routers(main_router, register_router, info_router, admin_router, channel_router)
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)

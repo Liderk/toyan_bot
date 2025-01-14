@@ -5,15 +5,18 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from telegram_app.filters.admin_filters import IsAdmin
+from telegram_app.filters.auth_filter import AuthFilter
 from telegram_app.handlers.utils import broadcast_message
 from telegram_app.keyboards.admin import create_admin_kb, cancel_btn
 from telegram_app.orm.utils import get_all_users_ids_for_broadcast, get_commander_users_ids_for_broadcast
 from telegram_app.utils.constants import MainKeyboardCommands, AdminKeyboardCommands
 
 admin_router = Router()
+admin_router.message.filter(AuthFilter(), IsAdmin())
+admin_router.callback_query.filter(AuthFilter(), IsAdmin())
 
 
-@admin_router.message(F.text == MainKeyboardCommands.ADMIN, IsAdmin())
+@admin_router.message(F.text == MainKeyboardCommands.ADMIN)
 async def admin_handler(message: Message):
     await message.answer('Открыт доступ в админку! Выберите действие👇', reply_markup=create_admin_kb())
 
@@ -23,7 +26,7 @@ class Form(StatesGroup):
     commander_broadcast = State()
 
 
-@admin_router.callback_query(F.data == AdminKeyboardCommands.ALL_BROADCAST, IsAdmin())
+@admin_router.callback_query(F.data == AdminKeyboardCommands.ALL_BROADCAST)
 async def admin_all_broadcast_handler(call: CallbackQuery, state: FSMContext):
     await call.answer()
     await call.message.answer(
@@ -33,7 +36,7 @@ async def admin_all_broadcast_handler(call: CallbackQuery, state: FSMContext):
     await state.set_state(Form.all_broadcast)
 
 
-@admin_router.callback_query(F.data == AdminKeyboardCommands.COMMANDER_BROADCAST, IsAdmin())
+@admin_router.callback_query(F.data == AdminKeyboardCommands.COMMANDER_BROADCAST)
 async def admin_all_broadcast_handler(call: CallbackQuery, state: FSMContext):
     await call.answer()
     await call.message.answer(
@@ -51,7 +54,7 @@ async def all_broadcast(message: Message, state: FSMContext):
 
 
 @admin_router.message(F.content_type.in_({'text', 'photo', 'document', 'video', 'audio', 'voice'}),
-                      Form.commander_broadcast, IsAdmin())
+                      Form.commander_broadcast)
 async def commander_broadcast(message: Message, state: FSMContext):
     users_ids = await get_commander_users_ids_for_broadcast(message.from_user.id)
     await universe_broadcast(message, state, users_ids)
@@ -79,7 +82,7 @@ async def universe_broadcast(message: Message, state: FSMContext, user_ids: list
                          f'НЕ получило <b>{bad_send}</b> пользователей.', reply_markup=create_admin_kb())
 
 
-@admin_router.callback_query(F.data == AdminKeyboardCommands.CANSEL, IsAdmin())
+@admin_router.callback_query(F.data == AdminKeyboardCommands.CANSEL)
 async def cansel_broadcast(call: CallbackQuery, state: FSMContext):
     await state.clear()
     await call.message.answer('Рассылка отменена!', reply_markup=create_admin_kb())
