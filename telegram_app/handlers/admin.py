@@ -12,8 +12,8 @@ from telegram_app.orm.utils import get_all_users_ids_for_broadcast, get_commande
 from telegram_app.utils.constants import MainKeyboardCommands, AdminKeyboardCommands
 
 admin_router = Router()
-admin_router.message.filter(AuthFilter(), IsAdmin())
-admin_router.callback_query.filter(AuthFilter(), IsAdmin())
+admin_router.message.filter(IsAdmin())
+admin_router.callback_query.filter(IsAdmin())
 
 
 @admin_router.message(F.text == MainKeyboardCommands.ADMIN)

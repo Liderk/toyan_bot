@@ -40,8 +40,9 @@ class UsersAdmin(auth_admin.UserAdmin):
 
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
-    list_display = ('telegram_username', 'telegram_id', 'team', 'is_commander', 'responsible_person')
-    search_fields = ('team', 'is_commander', 'responsible_person')
+    list_display = ('telegram_username', 'telegram_id', 'team', 'is_commander', 'responsible_person',
+                    'is_active', 'is_admin', 'date_joined')
+    search_fields = ('team', 'is_commander', 'responsible_person', 'is_admin', 'is_active')
 
 
 class TelegramUserInline(admin.TabularInline):

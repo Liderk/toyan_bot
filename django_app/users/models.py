@@ -41,21 +41,22 @@ class TelegramUser(models.Model):
     )
     telegram_id = models.PositiveBigIntegerField(
         verbose_name='Телеграм id',
-        blank=True,
-        null=True,
     )
     telegram_username = models.CharField(
         verbose_name='Телеграм логин',
         max_length=256,
-        blank=True,
-        null=True,
     )
     is_active = models.BooleanField(
         verbose_name='Активный пользователь',
-        default=True,
+        default=False,
         help_text='Если установлен, то пользователь имеет доступа к боту',
     )
-    models.DateTimeField(_("date joined"), default=timezone.now)
+    is_admin = models.BooleanField(
+        verbose_name='Является ли админом',
+        default=False,
+        help_text='Если установлен, то пользователь админ бота',
+    )
+    date_joined = models.DateTimeField('Дата подключения', default=timezone.now)
 
 
 class User(AbstractUser):
