@@ -7,20 +7,19 @@ from sqlalchemy import select, and_
 from sqlalchemy.exc import IntegrityError
 
 from telegram_app.orm.db_sqlite_utils import async_session_factory
-from telegram_app.orm.models import User, Event, Games
+from telegram_app.orm.models import TelegramUser, Event, Games
 
 
 async def get_admin_ids():
-    stmt = select(User.telegram_id).where(User.is_active == True,
-                                          User.is_superuser == True,
-                                          User.telegram_id.isnot(None))
+    stmt = select(TelegramUser.telegram_id).where(TelegramUser.is_active == True,
+                                                  TelegramUser.is_admin == True)
     async with async_session_factory() as session:
         result = await session.execute(stmt)
         return result.scalars().all()
 
 
-async def find_user_by_telegram_id(telegram_id: int) -> User | None:
-    stmt = select(User).where(User.telegram_id == telegram_id)
+async def find_user_by_telegram_id(telegram_id: int) -> TelegramUser | None:
+    stmt = select(TelegramUser).where(TelegramUser.telegram_id == telegram_id)
     async with async_session_factory() as session:
         result = await session.execute(stmt)
         return result.scalar_one_or_none()
@@ -28,7 +27,7 @@ async def find_user_by_telegram_id(telegram_id: int) -> User | None:
 
 async def create_inactive_user(user_data: dict):
     now = datetime.now(tz=pytz.timezone('Asia/Novosibirsk'))
-    new_user = User(**user_data, is_active=False, date_joined=now)
+    new_user = TelegramUser(**user_data, date_joined=now)
     async with async_session_factory() as session:
         try:
             session.add(new_user)
@@ -85,9 +84,8 @@ async def get_games_by_current_month() -> list[Games]:
 
 
 async def get_all_users_ids_for_broadcast(excluding_id: int):
-    stmt = select(User.telegram_id).where(User.is_active == True,
-                                          User.telegram_id.isnot(None),
-                                          User.telegram_id.isnot(excluding_id))
+    stmt = select(TelegramUser.telegram_id).where(TelegramUser.is_active == True,
+                                                  TelegramUser.telegram_id.isnot(excluding_id))
 
     async with async_session_factory() as session:
         result = await session.execute(stmt)
@@ -95,10 +93,9 @@ async def get_all_users_ids_for_broadcast(excluding_id: int):
 
 
 async def get_commander_users_ids_for_broadcast(excluding_id: int):
-    stmt = select(User.telegram_id).where(User.is_active == True,
-                                          User.telegram_id.isnot(None),
-                                          User.telegram_id.isnot(excluding_id),
-                                          User.is_commander == True)
+    stmt = select(TelegramUser.telegram_id).where(TelegramUser.is_active == True,
+                                                  TelegramUser.telegram_id.isnot(excluding_id),
+                                                  TelegramUser.is_commander == True)
 
     async with async_session_factory() as session:
         result = await session.execute(stmt)
