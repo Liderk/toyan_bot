@@ -1,4 +1,5 @@
 import asyncio
+from curses.ascii import isdigit
 
 from aiogram import Router, F
 from aiogram.filters import Command
@@ -8,6 +9,7 @@ from aiogram.types import Message
 from aiogram.utils.chat_action import ChatActionSender
 
 from telegram_app.init_bot import bot
+from telegram_app.orm.managers import TeamManager
 from telegram_app.orm.utils import create_inactive_user, find_user_by_telegram_id
 from telegram_app.utils.constants import Commands
 
@@ -15,9 +17,10 @@ register_router = Router()
 
 
 class Form(StatesGroup):
-    username = State()
+    telegram_username = State()
     team = State()
     is_commander = State()
+    responsible_person = State()
 
 
 @register_router.message(Command(Commands.REGISTER))
@@ -35,21 +38,34 @@ async def start_registration(message: Message, state: FSMContext):
     async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
         await asyncio.sleep(1)
         await message.answer('Твой позывной: ')
-    await state.set_state(Form.username)
+    await state.set_state(Form.telegram_username)
 
 
-@register_router.message(F.text, Form.username)
+@register_router.message(F.text, Form.telegram_username)
 async def capture_username(message: Message, state: FSMContext):
-    await state.update_data(username=message.text)
+    await state.update_data(telegram_username=message.text)
     async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
-        await asyncio.sleep(1)
-        await message.answer('Команда: ')
+        msg = f'Выбери свою команду (укажи номер):\n'
+        await TeamManager.load()
+        for team_id, name in TeamManager.teams.items():
+            msg = msg + f'{team_id} - {name}\n'
+        await message.answer(msg)
     await state.set_state(Form.team)
 
 
 @register_router.message(F.text, Form.team)
 async def capture_team(message: Message, state: FSMContext):
-    await state.update_data(team=message.text)
+    try:
+        command_id = int(message.text)
+    except ValueError:
+        await message.reply('Укажи только номер команды')
+        return
+
+    if not await TeamManager.get_by_id(command_id):
+        await message.reply('Указанный номер команды не существует. Укажи правильный')
+        return
+
+    await state.update_data(team_id=command_id)
     async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
         await asyncio.sleep(1)
         await message.answer('Ты командир? (да/нет): ')
@@ -63,20 +79,40 @@ async def capture_commander(message: Message, state: FSMContext):
     if answer not in ('да', 'нет'):
         await message.reply('Ответь да или нет')
         return
+    await state.update_data(is_commander=message.text.lower())
 
-    await state.update_data(is_commander=message.text)
+    async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
+        await asyncio.sleep(1)
+        await message.answer('Ты ответственное лицо в команде(зам командира и т.д.)? (да/нет)\n'
+                             'Если ты командир, то ответь тут тоже да. ')
+
+    await state.set_state(Form.responsible_person)
+
+
+@register_router.message(F.text, Form.responsible_person)
+async def responsible_person(message: Message, state: FSMContext):
+    answer = message.text.lower()
+
+    if answer not in ('да', 'нет'):
+        await message.reply('Ответь да или нет')
+        return
+
+    await state.update_data(responsible_person=message.text.lower())
 
     async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
         await asyncio.sleep(1)
         data = await state.get_data()
-
+        team = await TeamManager.get_by_id(data.get('team_id'))
         msg_text = (f'Позывной: <b>{data.get("username")}</b>, \n'
-                    f'Команда: <b>{data.get("team")}</b>, \n'
-                    f'Командир: <b>{data.get("is_commander")}</b>. \n\n'
+                    f'Команда: <b>{team}</b>, \n'
+                    f'Командир: <b>{data.get("is_commander")}</b>. \n'
+                    f'Ответственное лицо: <b>{data.get("responsible_person")}</b>. \n\n'
                     f'Заявка на регистрацию принята.')
 
         data['is_commander'] = data['is_commander'] == 'да'
+        data['responsible_person'] = data['responsible_person'] == 'да'
         data['telegram_id'] = message.from_user.id
+        data['telegram_username'] = message.from_user.username
 
         await create_inactive_user(data)
 

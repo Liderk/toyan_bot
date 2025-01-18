@@ -13,26 +13,19 @@ class Team(Base):
     recruit: Mapped[bool] = mapped_column(Boolean, default=True)
 
 
-class User(Base):
-    __tablename__ = 'users_user'
+class TelegramUser(Base):
+    __tablename__ = 'users_telegramuser'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    username: Mapped[str] = mapped_column(String(150), unique=True, nullable=False)
-    first_name: Mapped[str] = mapped_column(String(150), nullable=True, default='')
-    last_name: Mapped[str] = mapped_column(String(150), nullable=True, default='')
-    email: Mapped[str] = mapped_column(String(254), unique=True, nullable=False, default='')
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    is_staff: Mapped[bool] = mapped_column(Boolean, default=False)
-    is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
-    last_login: Mapped[datetime] = mapped_column(DATETIME, nullable=True)
-    date_joined: Mapped[datetime] = mapped_column(DATETIME, nullable=False)
-    password: Mapped[str] = mapped_column(String(128), nullable=True, default='')
-    is_commander: Mapped[bool] = mapped_column(Boolean, default=False)
-    responsible_person: Mapped[bool] = mapped_column(Boolean, default=False)
-    telegram_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    telegram_username: Mapped[str] = mapped_column(String(256), nullable=True, default='')
     team_id: Mapped[int] = mapped_column(Integer, ForeignKey('users_team.id'))
     team_rel: Mapped[Team] = relationship('Team')
+    is_active: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
+    date_joined: Mapped[datetime] = mapped_column(DATETIME, nullable=False)
+    is_commander: Mapped[bool] = mapped_column(Boolean, default=False)
+    responsible_person: Mapped[bool] = mapped_column(Boolean, default=False)
+    telegram_id: Mapped[int] = mapped_column(Integer)
+    telegram_username: Mapped[str] = mapped_column(String(256))
 
 
 class Games(Base):
