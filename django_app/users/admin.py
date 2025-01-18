@@ -5,10 +5,10 @@ from django.utils.translation import gettext_lazy as _
 
 from django.contrib.auth import admin as auth_admin
 
+from django_app.users.handlers.user_accepted_handler import UserAcceptedHandler
 from users.forms import UserAdminChangeForm, UserAdminCreationForm
 
 from users.models import Team, TelegramUser
-
 
 User = get_user_model()
 
@@ -43,6 +43,12 @@ class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ('telegram_username', 'telegram_id', 'team', 'is_commander', 'responsible_person',
                     'is_active', 'is_admin', 'date_joined')
     search_fields = ('team', 'is_commander', 'responsible_person', 'is_admin', 'is_active')
+
+    def save_model(self, request, obj, form, change) -> None:  # noqa: ANN001
+        super().save_model(request, obj, form, change)
+        if change:
+            handler = UserAcceptedHandler(form, obj)
+            handler.run()
 
 
 class TelegramUserInline(admin.TabularInline):
