@@ -7,7 +7,8 @@ from django.contrib.auth import admin as auth_admin
 
 from users.forms import UserAdminChangeForm, UserAdminCreationForm
 
-from users.models import Team
+from users.models import Team, TelegramUser
+
 
 User = get_user_model()
 
@@ -17,11 +18,10 @@ class UsersAdmin(auth_admin.UserAdmin):
     form = UserAdminChangeForm
     add_form = UserAdminCreationForm
 
-    list_display = ('username', 'team', 'is_active', 'is_superuser')
+    list_display = ('username',)
 
     fieldsets = (
-        (None, {'fields': ('username', 'password', 'telegram_id', 'telegram_username')}),
-        (_('Команда'), {'fields': ('team', 'is_commander', 'responsible_person')}),
+        (None, {'fields': ('username', 'password')}),
         (
             _('Permissions'),
             {
@@ -35,19 +35,25 @@ class UsersAdmin(auth_admin.UserAdmin):
     )
     search_fields = ('username',)
     search_help_text = _('Имя пользователя')
-    list_filter = ('team', 'is_superuser', 'is_active')
+    list_filter = ('is_superuser', 'is_active')
 
 
-class UserTeamInline(admin.TabularInline):
-    model = User
+@admin.register(TelegramUser)
+class TelegramUserAdmin(admin.ModelAdmin):
+    list_display = ('telegram_username', 'telegram_id', 'team', 'is_commander', 'responsible_person')
+    search_fields = ('team', 'is_commander', 'responsible_person')
+
+
+class TelegramUserInline(admin.TabularInline):
+    model = TelegramUser
     extra = 0
-    fields = ('username', 'is_commander', 'telegram_username')
+    fields = ('telegram_username', 'is_commander', 'responsible_person')
 
 
 @admin.register(Team)
 class TeamsAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'recruit')
-    inlines = (UserTeamInline,)
+    inlines = (TelegramUserInline,)
 
 
 admin.site.unregister(Group)

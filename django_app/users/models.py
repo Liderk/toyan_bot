@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
@@ -22,7 +23,7 @@ class Team(models.Model):
         return self.name
 
 
-class User(AbstractUser):
+class TelegramUser(models.Model):
     team = models.ForeignKey(
         to=Team,
         verbose_name='Команда',
@@ -49,16 +50,18 @@ class User(AbstractUser):
         blank=True,
         null=True,
     )
-    password = models.CharField(
-        verbose_name=_("password"),
-        max_length=128,
-        blank=True,
-        null=True,
+    is_active = models.BooleanField(
+        verbose_name='Активный пользователь',
+        default=True,
+        help_text='Если установлен, то пользователь имеет доступа к боту',
     )
+    models.DateTimeField(_("date joined"), default=timezone.now)
 
+
+class User(AbstractUser):
     class Meta:
-        verbose_name = 'Боец'
-        verbose_name_plural = 'Бойцы'
+        verbose_name = 'Администратор'
+        verbose_name_plural = 'Администраторы'
 
     def __str__(self):
         return self.username
