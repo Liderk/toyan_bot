@@ -7,40 +7,56 @@ from aiogram.utils.chat_action import ChatActionSender
 from telegram_app.filters.auth_filter import AuthFilter
 from telegram_app.init_bot import bot
 from telegram_app.keyboards.inline_info_kb import create_info_inline_kb
+from telegram_app.orm.managers import EventManager
 from telegram_app.orm.utils import get_nearest_game, get_nearest_event, get_games_by_current_month, \
     get_events_by_current_month
 from telegram_app.utils.constants import Commands, MainKeyboardCommands, EventsInfo
 
 info_router = Router()
-info_router.message.filter(AuthFilter())
-info_router.callback_query.filter(AuthFilter())
 
 
 async def get_nearest_event_data():
     event = await get_nearest_event()
     if event is None:
         return f'Ближайших мероприятий нет'
-    return f'{event.name}, {event.event_type}, {event.descriptions}, {event.start_date}'
+    event_type = EventManager.get_by_id(event.event_type)
+    event_date = event.start_date.strftime('%H:%M %d.%m.%Y')
+    return (f'Название: {event.name}\n'
+            f'Тип события: {event_type}\n'
+            f'Место: {event.location}\n'
+            f'Описание: {event.descriptions}\n'
+            f'Дата начала: {event_date}')
 
 
 async def get_nearest_game_data():
     game = await get_nearest_game()
     if game is None:
         return f'Ближайших игр нет'
-    return f'{game.name}, {game.start_date}, {game.city}'
+    start_date = game.start_date.strftime('%H:%M %d.%m.%Y')
+    return (f'Название: {game.name}\n'
+            f'Большая игра: {"Да" if game.big else "Нет"}\n'
+            f'Дата начала: {start_date}\n'
+            f'Город: {game.city}\n'
+            f'Полигон: {game.game_area}\n'
+            f'Командующий Тоян: {game.judas_commander}\n'
+            f'Командующий стороны: {game.side_commander}')
 
 
 async def get_data_for_games_by_current_month():
     games = await get_games_by_current_month()
-
-    return '\n'.join([f'{game.name}, {game.start_date}, {game.city}' for game in games])
+    return '\n-----\n'.join([f'{game.name}, '
+                             f'{game.start_date.strftime("%H:%M %d.%m.%Y")}, '
+                             f'{game.city}' for game in games])
 
 
 async def get_data_for_events_by_current_month():
     events = await get_events_by_current_month()
 
-    return '\n'.join([f'{event.name}, {event.event_type}, {event.descriptions}, {event.start_date}'
-                      for event in events])
+    return '\n-----\n'.join([f'{event.name}, '
+                             f'{EventManager.get_by_id(event.event_type)}, '
+                             f'{event.descriptions}, '
+                             f'{event.start_date.strftime("%H:%M %d.%m.%Y")}'
+                             for event in events])
 
 
 INFO_MENU = {
@@ -51,13 +67,13 @@ INFO_MENU = {
 }
 
 
-@info_router.message(F.text == MainKeyboardCommands.INFO)
+@info_router.message(F.text == MainKeyboardCommands.INFO, AuthFilter())
 async def init_info(message: Message):
     await message.answer('Что ты хочешь узнать?',
                          reply_markup=create_info_inline_kb(INFO_MENU))
 
 
-@info_router.callback_query(F.data.startswith(f'{Commands.INFO}_'))
+@info_router.callback_query(F.data.startswith(f'{Commands.INFO}_'), AuthFilter())
 async def cmd_start(call: CallbackQuery):
     await call.answer()
     info_id = int(call.data.replace(f'{Commands.INFO}_', ''))

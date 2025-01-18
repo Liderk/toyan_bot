@@ -6,6 +6,8 @@ from telegram_app.orm.utils import find_user_by_telegram_id
 
 class AuthFilter(BaseFilter):
     async def __call__(self, message: Message) -> bool:
+        if message.from_user.is_bot:
+            return True
         user_id = message.from_user.id
         user = await find_user_by_telegram_id(user_id)
         if user and user.is_active:
