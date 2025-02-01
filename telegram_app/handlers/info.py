@@ -1,9 +1,13 @@
 import asyncio
 
 from aiogram import Router, F
+from aiogram.filters import Command, or_f
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.chat_action import ChatActionSender
+from aiogram.utils.deep_linking import create_start_link
 
+from telegram_app.config import settings
+from telegram_app.filters.access_group import AccessGroupFilter
 from telegram_app.filters.auth_filter import AuthFilter
 from telegram_app.init_bot import bot
 from telegram_app.keyboards.inline_info_kb import create_info_inline_kb
@@ -13,6 +17,9 @@ from telegram_app.orm.utils import get_nearest_game, get_nearest_event, get_game
 from telegram_app.utils.constants import Commands, MainKeyboardCommands, EventsInfo
 
 info_router = Router()
+info_router.message.filter(
+    AccessGroupFilter(chat_type=["group", "supergroup"], allowed_group_chats=[settings.CHAT_ID, settings.GROUP_ID]),
+)
 
 
 async def get_nearest_event_data():
@@ -67,14 +74,20 @@ INFO_MENU = {
 }
 
 
-@info_router.message(F.text == MainKeyboardCommands.INFO, AuthFilter())
+@info_router.message(or_f((F.text == MainKeyboardCommands.INFO), Command(Commands.INFO)), AuthFilter())
 async def init_info(message: Message):
+    if message.chat.type in ('group', 'supergroup'):
+        await bot.send_message(chat_id=message.chat.id,
+                               reply_to_message_id=message.message_thread_id,
+                               reply_markup=create_info_inline_kb(INFO_MENU),
+                               text='Что ты хочешь узнать?')
+        return
     await message.answer('Что ты хочешь узнать?',
                          reply_markup=create_info_inline_kb(INFO_MENU))
 
 
 @info_router.callback_query(F.data.startswith(f'{Commands.INFO}_'), AuthFilter())
-async def cmd_start(call: CallbackQuery):
+async def info_detail(call: CallbackQuery):
     await call.answer()
     info_id = int(call.data.replace(f'{Commands.INFO}_', ''))
     info_data = INFO_MENU[info_id]
@@ -82,6 +95,16 @@ async def cmd_start(call: CallbackQuery):
     msg_text = f'<b>{info_data.get("info")}</b>\n\n' \
                f'{data}\n\n' \
                f'Что то еще, собака сутулая?'
-    async with ChatActionSender(bot=bot, chat_id=call.from_user.id, action="typing"):
-        await asyncio.sleep(2)
-        await call.message.answer(msg_text, reply_markup=create_info_inline_kb(INFO_MENU))
+    if not call.message.from_user.is_bot:
+        async with ChatActionSender(bot=bot, chat_id=call.from_user.id, action="typing"):
+            await asyncio.sleep(2)
+            await call.message.answer(msg_text, reply_markup=create_info_inline_kb(INFO_MENU))
+            return
+
+    await bot.send_message(chat_id=call.message.chat.id,
+                           reply_to_message_id=call.message.message_thread_id,
+                           reply_markup=create_info_inline_kb(INFO_MENU),
+                           text='Что то еще, собака сутулая?')
+
+
+

@@ -16,8 +16,7 @@ class AuthFilter(BaseFilter):
             await message.answer('Заявка на регистрацию на рассмотрении. Ожидайте!', show_alert=True)
 
         if user is None:
-            await message.answer('Для доступа к боту необходимо зарегистрироваться.\n\n'
-                                 'Выполни команду <b>/register</b> и следуй инструкциям!\n\n'
+            await message.answer('Для доступа к боту необходимо зарегистрироваться: <b>/register</b>.\n\n'
                                  'Регистрация обрабатывается в ручную. '
                                  'Когда отцы командиры одобрят твою кандидатуру, ты будешь уведомлен!', show_alert=True)
 

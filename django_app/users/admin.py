@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django.contrib.auth import admin as auth_admin
 
-from django_app.users.handlers.user_accepted_handler import UserAcceptedHandler
+from users.handlers.user_accepted_handler import UserAcceptedHandler
 from users.forms import UserAdminChangeForm, UserAdminCreationForm
 
 from users.models import Team, TelegramUser

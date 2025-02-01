@@ -2,6 +2,12 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from pathlib import Path
+
+current_path = Path(__file__)
+project_root = current_path.parent.parent
+
+sys.path.insert(1, str(project_root.resolve()))
 
 
 def main():

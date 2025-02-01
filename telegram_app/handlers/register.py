@@ -1,5 +1,4 @@
 import asyncio
-from curses.ascii import isdigit
 
 from aiogram import Router, F
 from aiogram.filters import Command
@@ -17,7 +16,7 @@ register_router = Router()
 
 
 class Form(StatesGroup):
-    telegram_username = State()
+    callsign = State()
     team = State()
     is_commander = State()
     responsible_person = State()
@@ -38,12 +37,12 @@ async def start_registration(message: Message, state: FSMContext):
     async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
         await asyncio.sleep(1)
         await message.answer('Твой позывной: ')
-    await state.set_state(Form.telegram_username)
+    await state.set_state(Form.callsign)
 
 
-@register_router.message(F.text, Form.telegram_username)
+@register_router.message(F.text, Form.callsign)
 async def capture_username(message: Message, state: FSMContext):
-    await state.update_data(telegram_username=message.text)
+    await state.update_data(callsign=message.text)
     async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
         msg = f'Выбери свою команду (укажи номер):\n'
         await TeamManager.load()
@@ -103,7 +102,7 @@ async def responsible_person(message: Message, state: FSMContext):
         await asyncio.sleep(1)
         data = await state.get_data()
         team = await TeamManager.get_by_id(data.get('team_id'))
-        msg_text = (f'Позывной: <b>{data.get("username")}</b>, \n'
+        msg_text = (f'Позывной: <b>{data.get("callsign")}</b>, \n'
                     f'Команда: <b>{team}</b>, \n'
                     f'Командир: <b>{data.get("is_commander")}</b>. \n'
                     f'Ответственное лицо: <b>{data.get("responsible_person")}</b>. \n\n'

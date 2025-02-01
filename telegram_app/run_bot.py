@@ -2,6 +2,7 @@ import asyncio
 from aiogram.types import BotCommand, BotCommandScopeDefault
 from init_bot import bot, dp, scheduler
 from handlers.main import main_router
+from telegram_app.config import settings
 from telegram_app.handlers.admin import admin_router
 from telegram_app.handlers.channel import channel_router
 from telegram_app.handlers.info import info_router
@@ -15,9 +16,7 @@ from telegram_app.utils.constants import Commands
 async def set_commands():
     # Создаем список команд, которые будут доступны пользователям
     commands = [
-        BotCommand(command=Commands.START, description='Старт'),
-        BotCommand(command=Commands.REGISTER, description='Регистрация'),
-        BotCommand(command=Commands.MAIN_KEYBOARD, description='Вызывать клавиатуру'),
+        BotCommand(command=Commands.INFO, description='Информация'),
     ]
     await bot.set_my_commands(commands, BotCommandScopeDefault())
 

@@ -56,7 +56,14 @@ class TelegramUser(models.Model):
         default=False,
         help_text='Если установлен, то пользователь админ бота',
     )
-    date_joined = models.DateTimeField('Дата подключения', default=timezone.now)
+    date_joined = models.DateTimeField(
+        'Дата подключения',
+        default=timezone.now
+    )
+    callsign = models.CharField(
+        verbose_name='Позывной',
+        max_length=256,
+    )
 
 
 class User(AbstractUser):

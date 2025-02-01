@@ -23,3 +23,11 @@ class AdminKeyboardCommands:
     ALL_BROADCAST: str = 'all_broadcast'
     COMMANDER_BROADCAST: str = 'commander_broadcast'
     CANSEL: str = 'cansel_broadcast'
+
+
+@dataclass
+class EventsInfo:
+    nearest_game: str = 'Ближайшая игра'
+    nearest_event: str = 'Ближайшее мероприятие'
+    month_games: str = 'Игры в этом месяце'
+    month_event: str = 'Мероприятия в этом месяце'
