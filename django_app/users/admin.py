@@ -41,7 +41,7 @@ class UsersAdmin(auth_admin.UserAdmin):
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ('telegram_username', 'telegram_id', 'team', 'is_commander', 'responsible_person',
-                    'is_active', 'is_admin', 'date_joined')
+                    'is_active', 'is_banned', 'is_admin', 'date_joined')
     search_fields = ('team', 'is_commander', 'responsible_person', 'is_admin', 'is_active')
 
     def save_model(self, request, obj, form, change) -> None:  # noqa: ANN001
@@ -54,7 +54,9 @@ class TelegramUserAdmin(admin.ModelAdmin):
 class TelegramUserInline(admin.TabularInline):
     model = TelegramUser
     extra = 0
-    fields = ('telegram_username', 'is_commander', 'responsible_person')
+    fields = ('callsign', 'is_commander', 'responsible_person')
+    can_delete = False
+    readonly_fields = ('callsign',)
 
 
 @admin.register(Team)

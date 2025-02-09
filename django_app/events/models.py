@@ -117,7 +117,12 @@ class NotificationPeriod(models.Model):
         verbose_name_plural = 'Период уведомлений'
 
     def __str__(self):
-        return f'{self.get_period_display()}/{self.amount}'
+        return f'{self.amount}/{self.get_period_display()}'
+
+
+class MessageFor(models.IntegerChoices):
+    BOT = 1, 'В бот'
+    CHANNEL = 2, 'В канал'
 
 
 class GameEventNotification(models.Model):
@@ -139,6 +144,15 @@ class GameEventNotification(models.Model):
         verbose_name='Дата уведомления',
         null=True,
         blank=True,
+    )
+    allow_discussion = models.BooleanField(
+        verbose_name='Уведомление с комментариями',
+        default=True,
+    )
+    message_for = models.SmallIntegerField(
+        verbose_name='Сообщение для',
+        choices=MessageFor.choices,
+        default=MessageFor.CHANNEL,
     )
 
     class Meta:

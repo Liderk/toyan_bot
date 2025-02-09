@@ -64,6 +64,19 @@ class TelegramUser(models.Model):
         verbose_name='Позывной',
         max_length=256,
     )
+    is_banned = models.BooleanField(
+        verbose_name='Забанен',
+        default=False,
+        help_text='Если установлен, то пользователь забанен в боте и канале. '
+                  'Ему не будет доступна рассылка и функционал',
+    )
+
+    class Meta:
+        verbose_name = 'Телеграм пользователь'
+        verbose_name_plural = 'Телеграм пользователи'
+
+    def __str__(self):
+        return f'{self.telegram_username}/{self.callsign}'
 
 
 class User(AbstractUser):
