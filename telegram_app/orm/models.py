@@ -27,6 +27,7 @@ class TelegramUser(Base):
     telegram_id: Mapped[int] = mapped_column(Integer)
     telegram_username: Mapped[str] = mapped_column(String(256))
     callsign: Mapped[str] = mapped_column(String(256))
+    is_banned: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
 class Games(Base):
