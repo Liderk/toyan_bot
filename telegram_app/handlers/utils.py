@@ -2,47 +2,104 @@ import asyncio
 import logging
 
 from aiogram.enums import ContentType
+from aiogram.fsm.context import FSMContext
+from aiogram.types import Message
 
 from telegram_app.init_bot import bot
+from telegram_app.keyboards.admin import create_admin_kb
+from telegram_app.utils.constants import MsgAction
 
 logger = logging.getLogger(__file__)
 
 
-async def broadcast_message(users_ids: list, text: str = None, photo_id: int = None, document_id: int = None,
-                            video_id: int = None, audio_id: int = None, voice_id: int = None,
-                            caption: str = None, content_type: str = None):
-    good_send = 0
-    bad_send = 0
-    # бот для закрытого, узкоспециализированного сообщества, на 100 человек максимум,
-    # поэтому не строим сложные конструкции и используем for
-    for chat_id in users_ids:
-        try:
-            if content_type == ContentType.TEXT:
-                await bot.send_message(chat_id=chat_id, text=text)
-            elif content_type == ContentType.PHOTO:
-                await bot.send_photo(chat_id=chat_id, photo=photo_id, caption=caption)
-            elif content_type == ContentType.DOCUMENT:
-                await bot.send_document(chat_id=chat_id, document=document_id, caption=caption)
-            elif content_type == ContentType.VIDEO:
-                await bot.send_video(chat_id=chat_id, video=video_id, caption=caption)
-            elif content_type == ContentType.AUDIO:
-                await bot.send_audio(chat_id=chat_id, audio=audio_id, caption=caption)
-            elif content_type == ContentType.VOICE:
-                await bot.send_voice(chat_id=chat_id, voice=voice_id, caption=caption)
-            good_send += 1
-        except Exception as e:
-            logger.error(e)
-            bad_send += 1
-        finally:
-            await asyncio.sleep(1)
-    return good_send, bad_send
+class UniversalMessageSender:
+    def __init__(self, text: str = None, photo_id: str = None, document_id: str = None,
+                 video_id: str = None, audio_id: str = None, voice_id: str = None,
+                 caption: str = None, content_type: str = None):
+        self.text: (str, None) = text
+        self.photo_id: (str, None) = photo_id
+        self.document_id: (str, None) = document_id
+        self.video_id: (str, None) = video_id
+        self.audio_id: (str, None) = audio_id
+        self.voice_id: (str, None) = voice_id
+        self.caption: (str, None) = caption
+        self.content_type: (str, None) = content_type
+
+    @classmethod
+    def init_from_message(cls, message: Message):
+        return cls(
+            text=message.text,
+            photo_id=message.photo[-1].file_id if message.photo else None,
+            document_id=message.document.file_id if message.document else None,
+            video_id=message.video.file_id if message.video else None,
+            audio_id=message.audio.file_id if message.audio else None,
+            voice_id=message.voice.file_id if message.voice else None,
+            caption=message.caption,
+            content_type=message.content_type,
+        )
+
+    async def send_message(self, chat_id: int) -> Message:
+        if self.content_type == ContentType.TEXT:
+            return await bot.send_message(chat_id=chat_id, text=self.text)
+        elif self.content_type == ContentType.PHOTO:
+            return await bot.send_photo(chat_id=chat_id, photo=self.photo_id, caption=self.caption)
+        elif self.content_type == ContentType.DOCUMENT:
+            return await bot.send_document(chat_id=chat_id, document=self.document_id, caption=self.caption)
+        elif self.content_type == ContentType.VIDEO:
+            return await bot.send_video(chat_id=chat_id, video=self.video_id, caption=self.caption)
+        elif self.content_type == ContentType.AUDIO:
+            return await bot.send_audio(chat_id=chat_id, audio=self.audio_id, caption=self.caption)
+        elif self.content_type == ContentType.VOICE:
+            return await bot.send_voice(chat_id=chat_id, voice=self.voice_id, caption=self.caption)
+
+    async def broadcast_message(self, users_ids: list[int]) -> tuple[int, int]:
+        good_send: int = 0
+        bad_send: int = 0
+        # бот для закрытого, узкоспециализированного сообщества, на 100 человек максимум,
+        # поэтому не строим сложные конструкции и используем for
+        for chat_id in users_ids:
+            try:
+                await self.send_message(chat_id)
+                good_send += 1
+            except Exception as e:
+                logger.error(e)
+                bad_send += 1
+            finally:
+                await asyncio.sleep(1)
+        return good_send, bad_send
+
+    async def message_with_discussion(self, channel_id: int) -> Message:
+        return await self.send_message(chat_id=channel_id)
+
+    async def message_without_discussion(self, channel_id: int, group_id: int) -> Message:
+        msg = await self.send_message(chat_id=channel_id)
+        InMemoryMessageIdStorage.add_msg(msg.message_id, MsgAction.delete)
+
+        return msg
 
 
-async def message_without_discussion(channel_id: int, group_id: int, messages):
-    msg = await bot.send_message(chat_id=channel_id, text=messages)
-    await asyncio.sleep(5)  # ожидание пока сообщение дойдет до группы
-    updates = await bot.get_updates()
-    for update in updates:
-        if update.message.forward_from_message_id == msg.message_id:
-            await bot.delete_message(chat_id=group_id, message_id=update.message.message_id)
-            break
+async def universe_broadcast(message: Message, state: FSMContext, user_ids: list[int]):
+    await message.answer(f'Начинаю рассылку на {len(user_ids)} пользователей.')
+
+    sender = UniversalMessageSender.init_from_message(message)
+    good_send, bad_send = await sender.broadcast_message(users_ids=user_ids)
+
+    await state.clear()
+    await message.answer(f'Рассылка завершена. Сообщение получило <b>{good_send}</b>, '
+                         f'НЕ получило <b>{bad_send}</b> пользователей.', reply_markup=create_admin_kb())
+
+
+class InMemoryMessageIdStorage:
+    message_id = {}
+
+    @classmethod
+    def add_msg(cls, msg_id: int, action: str):
+        cls.message_id[msg_id] = action
+
+    @classmethod
+    def delete_msg(cls, msg_id: int):
+        del cls.message_id[msg_id]
+
+    @classmethod
+    def check_msg(cls, msg_id: int):
+        return cls.message_id.get(msg_id)

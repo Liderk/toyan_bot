@@ -1,12 +1,11 @@
 from aiogram import Router, F
-from aiogram.enums import ContentType
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
+from telegram_app.config import settings
 from telegram_app.filters.admin_filters import IsAdmin
-from telegram_app.filters.auth_filter import AuthFilter
-from telegram_app.handlers.utils import broadcast_message
+from telegram_app.handlers.utils import UniversalMessageSender, universe_broadcast
 from telegram_app.keyboards.admin import create_admin_kb, cancel_btn
 from telegram_app.orm.utils import get_all_users_ids_for_broadcast, get_commander_users_ids_for_broadcast
 from telegram_app.utils.constants import MainKeyboardCommands, AdminKeyboardCommands
@@ -22,35 +21,39 @@ async def admin_handler(message: Message):
 
 
 class Form(StatesGroup):
-    all_broadcast = State()
+    all_broadcast_to_bot = State()
     commander_broadcast = State()
+    discussion_with_comment = State()
+    discussion_without_comment = State()
 
 
-@admin_router.callback_query(F.data == AdminKeyboardCommands.ALL_BROADCAST)
+# __________________________________________________________________________________
+@admin_router.callback_query(F.data == AdminKeyboardCommands.ALL_BROADCAST_TO_BOT)
 async def admin_all_broadcast_handler(call: CallbackQuery, state: FSMContext):
     await call.answer()
     await call.message.answer(
         'Отправь любое сообщение, а я его перехвачу и перешлю всем пользователям с базы данных',
         reply_markup=cancel_btn()
     )
-    await state.set_state(Form.all_broadcast)
-
-
-@admin_router.callback_query(F.data == AdminKeyboardCommands.COMMANDER_BROADCAST)
-async def admin_all_broadcast_handler(call: CallbackQuery, state: FSMContext):
-    await call.answer()
-    await call.message.answer(
-        'Отправь любое сообщение, а я его перехвачу и перешлю всем пользователям с базы данных',
-        reply_markup=cancel_btn()
-    )
-    await state.set_state(Form.commander_broadcast)
+    await state.set_state(Form.all_broadcast_to_bot)
 
 
 @admin_router.message(F.content_type.in_({'text', 'photo', 'document', 'video', 'audio', 'voice'}),
-                      Form.all_broadcast, IsAdmin())
+                      Form.all_broadcast_to_bot, IsAdmin())
 async def all_broadcast(message: Message, state: FSMContext):
     users_ids = await get_all_users_ids_for_broadcast(message.from_user.id)
     await universe_broadcast(message, state, users_ids)
+
+
+# __________________________________________________________________________________
+@admin_router.callback_query(F.data == AdminKeyboardCommands.COMMANDER_BROADCAST)
+async def admin_commander_broadcast_handler(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await call.message.answer(
+        'Отправь любое сообщение, а я его перехвачу и перешлю всем командирам и ответственным',
+        reply_markup=cancel_btn()
+    )
+    await state.set_state(Form.commander_broadcast)
 
 
 @admin_router.message(F.content_type.in_({'text', 'photo', 'document', 'video', 'audio', 'voice'}),
@@ -60,28 +63,43 @@ async def commander_broadcast(message: Message, state: FSMContext):
     await universe_broadcast(message, state, users_ids)
 
 
-async def universe_broadcast(message: Message, state: FSMContext, user_ids: list[int]):
-    content_type = message.content_type
-
-    await message.answer(f'Начинаю рассылку на {len(user_ids)} пользователей.')
-
-    good_send, bad_send = await broadcast_message(
-        users_ids=user_ids,
-        text=message.text if content_type == ContentType.TEXT else None,
-        photo_id=message.photo[-1].file_id if content_type == ContentType.PHOTO else None,
-        document_id=message.document.file_id if content_type == ContentType.DOCUMENT else None,
-        video_id=message.video.file_id if content_type == ContentType.VIDEO else None,
-        audio_id=message.audio.file_id if content_type == ContentType.AUDIO else None,
-        voice_id=message.voice.file_id if content_type == ContentType.VOICE else None,
-        caption=message.caption,
-        content_type=content_type,
+# __________________________________________________________________________________
+@admin_router.callback_query(F.data == AdminKeyboardCommands.CHANNEL_MESSAGE_WITH_COMMENT)
+async def admin_commander_broadcast_handler(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await call.message.answer(
+        'Отправь любое сообщение, а я его перехвачу и создам пост с комментариями в канале',
+        reply_markup=cancel_btn()
     )
-
-    await state.clear()
-    await message.answer(f'Рассылка завершена. Сообщение получило <b>{good_send}</b>, '
-                         f'НЕ получило <b>{bad_send}</b> пользователей.', reply_markup=create_admin_kb())
+    await state.set_state(Form.discussion_with_comment)
 
 
+@admin_router.message(F.content_type.in_({'text', 'photo', 'document', 'video', 'audio', 'voice'}),
+                      Form.discussion_with_comment)
+async def channel_message_with_comment(message: Message, state: FSMContext):
+    sender = UniversalMessageSender.init_from_message(message)
+    await sender.message_with_discussion(settings.CHAT_ID)
+
+
+# __________________________________________________________________________________
+@admin_router.callback_query(F.data == AdminKeyboardCommands.CHANNEL_MESSAGE_WITHOUT_COMMENT)
+async def admin_commander_broadcast_handler(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await call.message.answer(
+        'Отправь любое сообщение, а я его перехвачу и создам пост без комментариев в канале',
+        reply_markup=cancel_btn()
+    )
+    await state.set_state(Form.discussion_without_comment)
+
+
+@admin_router.message(F.content_type.in_({'text', 'photo', 'document', 'video', 'audio', 'voice'}),
+                      Form.discussion_without_comment)
+async def channel_message_with_comment(message: Message, state: FSMContext):
+    sender = UniversalMessageSender.init_from_message(message)
+    await sender.message_without_discussion(settings.CHAT_ID, settings.GROUP_ID)
+
+
+# __________________________________________________________________________________
 @admin_router.callback_query(F.data == AdminKeyboardCommands.CANSEL)
 async def cansel_broadcast(call: CallbackQuery, state: FSMContext):
     await state.clear()

@@ -20,8 +20,10 @@ class MainKeyboardCommands:
 class AdminKeyboardCommands:
     USERS: str = 'users'
     BAN: str = 'ban'
-    ALL_BROADCAST: str = 'all_broadcast'
+    ALL_BROADCAST_TO_BOT: str = 'all_broadcast_from_bot'
     COMMANDER_BROADCAST: str = 'commander_broadcast'
+    CHANNEL_MESSAGE_WITH_COMMENT: str = 'channel_message_with_comment'
+    CHANNEL_MESSAGE_WITHOUT_COMMENT: str = 'channel_message_without_comment'
     CANSEL: str = 'cansel_broadcast'
 
 
@@ -31,3 +33,8 @@ class EventsInfo:
     nearest_event: str = 'Ближайшее мероприятие'
     month_games: str = 'Игры в этом месяце'
     month_event: str = 'Мероприятия в этом месяце'
+
+
+@dataclass
+class MsgAction:
+    delete: str = 'delete'
