@@ -61,3 +61,44 @@ class Event(Base):
     organizers: Mapped[str] = mapped_column(String(250), nullable=False)
     start_date: Mapped[datetime] = mapped_column(DATETIME, nullable=False)
     end_date: Mapped[datetime] = mapped_column(DATETIME, nullable=False)
+
+
+# Модель PeriodChoices (перечисление)
+class PeriodChoices:
+    HOURS = 1
+    DAYS = 2
+    WEEK = 3
+    MONTH = 4
+
+
+# Модель NotificationPeriod
+class NotificationPeriod(Base):
+    __tablename__ = 'events_notificationperiod'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    period: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    amount: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+
+    def __repr__(self):
+        return f"NotificationPeriod(id={self.id}, period={self.period}, amount={self.amount})"
+
+
+# # Модель GameEventNotification
+# class GameEventNotification(Base):
+#     __tablename__ = 'events_gameeventnotification'
+#
+#     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+#     content_type: Mapped[str] = mapped_column(String(250), nullable=False)
+#     object_id: Mapped[int] = mapped_column(Integer, nullable=False)
+#     notification_period_id: Mapped[int] = mapped_column(Integer, ForeignKey('notification_period.id'), nullable=False)
+#     notified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+#     notification_date: Mapped[datetime] = mapped_column(DATETIME, nullable=True)
+#
+#     notification_period: Mapped['NotificationPeriod'] = relationship('NotificationPeriod', back_populates='schedulers')
+#
+#     def __repr__(self):
+#         return f"GameEventNotification(id={self.id}, content_type={self.content_type}, object_id={self.object_id})"
+
+
+# # Связь между NotificationPeriod и GameEventNotification
+# NotificationPeriod.schedulers = relationship('GameEventNotification', back_populates='notification_period')

@@ -31,8 +31,6 @@ async def channel_post_handler(message: Message):
     logger.info(f"Chat ID from settings: {settings.CHAT_ID}, Thread ID: {message.message_thread_id}")
     if user_msg not in bot_answer_mapping:
         await message.answer('Я не понимаю тебя, кожанный мешок!!', reply_to_message_id=message.message_id)
-        # await bot.send_message(chat_id=message.chat.id, reply_to_message_id=message.message_thread_id,
-        #                        text='Проверка ответа в тред')
         return
 
     data = await bot_answer_mapping[user_msg]()

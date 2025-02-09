@@ -2,9 +2,9 @@ import asyncio
 
 from aiogram import Router, F
 from aiogram.filters import Command, or_f
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.chat_action import ChatActionSender
-from aiogram.utils.deep_linking import create_start_link
 
 from telegram_app.config import settings
 from telegram_app.filters.access_group import AccessGroupFilter
@@ -75,7 +75,8 @@ INFO_MENU = {
 
 
 @info_router.message(or_f((F.text == MainKeyboardCommands.INFO), Command(Commands.INFO)), AuthFilter())
-async def init_info(message: Message):
+async def init_info(message: Message, state: FSMContext):
+    await state.clear()
     if message.chat.type in ('group', 'supergroup'):
         await bot.send_message(chat_id=message.chat.id,
                                reply_to_message_id=message.message_thread_id,
@@ -103,8 +104,7 @@ async def info_detail(call: CallbackQuery):
 
     await bot.send_message(chat_id=call.message.chat.id,
                            reply_to_message_id=call.message.message_thread_id,
-                           reply_markup=create_info_inline_kb(INFO_MENU),
-                           text='Что то еще, собака сутулая?')
+                           text=msg_text)
 
 
 

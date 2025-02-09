@@ -9,7 +9,7 @@ from aiogram.utils.chat_action import ChatActionSender
 
 from telegram_app.init_bot import bot
 from telegram_app.orm.managers import TeamManager
-from telegram_app.orm.utils import create_inactive_user, find_user_by_telegram_id
+from telegram_app.orm.utils import create_inactive_user, find_user_by_telegram_id, get_admin_ids, get_admins
 from telegram_app.utils.constants import Commands
 
 register_router = Router()
@@ -117,4 +117,10 @@ async def responsible_person(message: Message, state: FSMContext):
 
         await message.answer(msg_text)
         await message.answer('Продолжайте вести наблюдение, мы с вами свяжемся.')
+
+        admins_ids = await get_admin_ids()
+        for admin_id in admins_ids:
+            await bot.send_message(chat_id=admin_id,
+                                   text=f'Новая заявка на регистрацию:\n{msg_text}')
+
     await state.clear()

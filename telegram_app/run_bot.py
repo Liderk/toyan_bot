@@ -7,6 +7,7 @@ from telegram_app.handlers.admin import admin_router
 from telegram_app.handlers.channel import channel_router
 from telegram_app.handlers.info import info_router
 from telegram_app.handlers.register import register_router
+from telegram_app.handlers.utils import message_without_discussion
 from telegram_app.orm.utils import get_admin_ids
 from telegram_app.utils.constants import Commands
 
@@ -23,6 +24,8 @@ async def set_commands():
 
 async def on_startup() -> None:
     await set_commands()
+    await message_without_discussion(settings.CHAT_ID, settings.GROUP_ID, 'Уведомление без комментов')
+    # await bot.delete_message(chat_id=settings.GROUP_ID, message_id=msg.message_id)
     # admin_ids = await get_admin_ids()
     # for admin_id in admin_ids:  # первый бот, для простоты использую for, далее переписать на рассылку
     #     await bot.send_message(chat_id=admin_id, text='Бот запущен!')

@@ -36,3 +36,13 @@ async def broadcast_message(users_ids: list, text: str = None, photo_id: int = N
         finally:
             await asyncio.sleep(1)
     return good_send, bad_send
+
+
+async def message_without_discussion(channel_id: int, group_id: int, messages):
+    msg = await bot.send_message(chat_id=channel_id, text=messages)
+    await asyncio.sleep(5)  # ожидание пока сообщение дойдет до группы
+    updates = await bot.get_updates()
+    for update in updates:
+        if update.message.forward_from_message_id == msg.message_id:
+            await bot.delete_message(chat_id=group_id, message_id=update.message.message_id)
+            break

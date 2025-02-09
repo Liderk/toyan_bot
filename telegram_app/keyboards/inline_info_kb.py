@@ -14,13 +14,6 @@ def create_info_inline_kb(info_menu: dict) -> InlineKeyboardMarkup:
                 callback_data=f'{Commands.INFO}_{info_id}'
             )
         )
-    # Добавляем кнопку "На главную"
-    builder.row(
-        InlineKeyboardButton(
-            text='На главную',
-            callback_data='back_home'
-        )
-    )
     # Настраиваем размер клавиатуры
     builder.adjust(2)
     return builder.as_markup()

@@ -18,6 +18,14 @@ async def get_admin_ids():
         return result.scalars().all()
 
 
+async def get_admins():
+    stmt = select(TelegramUser).where(TelegramUser.is_active == True,
+                                      TelegramUser.is_admin == True)
+    async with async_session_factory() as session:
+        result = await session.execute(stmt)
+        return result.scalars().all()
+
+
 async def find_user_by_telegram_id(telegram_id: int) -> TelegramUser | None:
     stmt = select(TelegramUser).where(TelegramUser.telegram_id == telegram_id)
     async with async_session_factory() as session:
