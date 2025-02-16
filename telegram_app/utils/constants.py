@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import NamedTuple
 
 
 @dataclass
@@ -38,3 +39,13 @@ class EventsInfo:
 @dataclass
 class MsgAction:
     delete: str = 'delete'
+
+
+class CommandRole(NamedTuple):
+    rank: str
+    marker: int
+
+
+COMMANDER = CommandRole('командир', 1)
+COMMANDER_ASSISTANT = CommandRole('заместитель', 2)
+STORMTROOPER = CommandRole('боец', 3)

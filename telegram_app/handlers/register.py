@@ -1,4 +1,6 @@
 import asyncio
+from copy import deepcopy
+from curses.ascii import isdigit
 
 from aiogram import Router, F
 from aiogram.filters import Command
@@ -8,9 +10,9 @@ from aiogram.types import Message
 from aiogram.utils.chat_action import ChatActionSender
 
 from telegram_app.init_bot import bot
-from telegram_app.orm.managers import TeamManager
+from telegram_app.orm.managers import TeamManager, CommandRoleManager
 from telegram_app.orm.utils import create_inactive_user, find_user_by_telegram_id, get_admin_ids, get_admins
-from telegram_app.utils.constants import Commands
+from telegram_app.utils.constants import Commands, COMMANDER, COMMANDER_ASSISTANT
 
 register_router = Router()
 
@@ -18,8 +20,7 @@ register_router = Router()
 class Form(StatesGroup):
     callsign = State()
     team = State()
-    is_commander = State()
-    responsible_person = State()
+    command_role = State()
 
 
 @register_router.message(Command(Commands.REGISTER))
@@ -46,7 +47,7 @@ async def capture_username(message: Message, state: FSMContext):
     async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
         msg = f'Выбери свою команду (укажи номер):\n'
         await TeamManager.load()
-        for team_id, name in TeamManager.teams.items():
+        for team_id, name in TeamManager.items.items():
             msg = msg + f'{team_id} - {name}\n'
         await message.answer(msg)
     await state.set_state(Form.team)
@@ -67,53 +68,43 @@ async def capture_team(message: Message, state: FSMContext):
     await state.update_data(team_id=command_id)
     async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
         await asyncio.sleep(1)
-        await message.answer('Ты командир? (да/нет): ')
-    await state.set_state(Form.is_commander)
+        await CommandRoleManager.load()
+        choices = '\n'.join(f'{role.marker}: {role.rank}' for role in CommandRoleManager.items.values())
+        await message.answer(f'Кто ты:\n{choices}')
+    await state.set_state(Form.command_role)
 
 
-@register_router.message(F.text, Form.is_commander)
+@register_router.message(F.text, Form.command_role)
 async def capture_commander(message: Message, state: FSMContext):
-    answer = message.text.lower()
-
-    if answer not in ('да', 'нет'):
-        await message.reply('Ответь да или нет')
-        return
-    await state.update_data(is_commander=message.text.lower())
-
-    async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
-        await asyncio.sleep(1)
-        await message.answer('Ты ответственное лицо в команде(зам командира и т.д.)? (да/нет)\n'
-                             'Если ты командир, то ответь тут тоже да. ')
-
-    await state.set_state(Form.responsible_person)
-
-
-@register_router.message(F.text, Form.responsible_person)
-async def responsible_person(message: Message, state: FSMContext):
-    answer = message.text.lower()
-
-    if answer not in ('да', 'нет'):
-        await message.reply('Ответь да или нет')
+    marker = message.text.strip()
+    try:
+        isdigit(marker)
+    except TypeError:
+        choices = '\n'.join(f'{role.marker}: {role.rank}' for role in CommandRoleManager.items.values())
+        await message.reply(f'Просто поставь нужную цифру:\n{choices}')
         return
 
-    await state.update_data(responsible_person=message.text.lower())
+    await state.update_data(command_role=int(marker))
 
     async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
         await asyncio.sleep(1)
         data = await state.get_data()
         team = await TeamManager.get_by_id(data.get('team_id'))
+        team_role = await CommandRoleManager.get_by_id(data.get('command_role'))
         msg_text = (f'Позывной: <b>{data.get("callsign")}</b>, \n'
                     f'Команда: <b>{team}</b>, \n'
-                    f'Командир: <b>{data.get("is_commander")}</b>. \n'
-                    f'Ответственное лицо: <b>{data.get("responsible_person")}</b>. \n\n'
+                    f'Роль в команде: <b>{team_role.rank}</b>. \n\n'
                     f'Заявка на регистрацию принята.')
 
-        data['is_commander'] = data['is_commander'] == 'да'
-        data['responsible_person'] = data['responsible_person'] == 'да'
+        data['is_commander'] = data['command_role'] == COMMANDER.marker
+        data['responsible_person'] = data['command_role'] == COMMANDER_ASSISTANT.marker
         data['telegram_id'] = message.from_user.id
-        data['telegram_username'] = message.from_user.username
+        data['telegram_username'] = message.from_user.username or f'{message.from_user.full_name}'
 
-        await create_inactive_user(data)
+        model_data = deepcopy(data)
+        del model_data['command_role']
+
+        await create_inactive_user(model_data)
 
         await message.answer(msg_text)
         await message.answer('Продолжайте вести наблюдение, мы с вами свяжемся.')
