@@ -17,15 +17,16 @@ from telegram_app.utils.constants import Commands
 async def set_commands():
     # Создаем список команд, которые будут доступны пользователям
     commands = [
-        BotCommand(command=Commands.INFO, description='Информация'),
+        BotCommand(command=Commands.MENU, description='Меню'),
+
     ]
     await bot.set_my_commands(commands, BotCommandScopeDefault())
+    pass
 
 
 async def on_startup() -> None:
     await set_commands()
-    # await bot.delete_message(chat_id=settings.GROUP_ID, message_id=msg.message_id)
-    # admin_ids = await get_admin_ids()
+    admin_ids = await get_admin_ids()
     # for admin_id in admin_ids:  # первый бот, для простоты использую for, далее переписать на рассылку
     #     await bot.send_message(chat_id=admin_id, text='Бот запущен!')
 

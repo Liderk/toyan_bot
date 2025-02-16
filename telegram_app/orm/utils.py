@@ -3,11 +3,12 @@ import string
 from datetime import datetime, timedelta
 
 import pytz
-from sqlalchemy import select, and_
+import sqlalchemy
+from sqlalchemy import select, and_, update, or_
 from sqlalchemy.exc import IntegrityError
 
 from telegram_app.orm.db_sqlite_utils import async_session_factory
-from telegram_app.orm.models import TelegramUser, Event, Games
+from telegram_app.orm.models import TelegramUser, Event, Games, Team
 
 
 async def get_admin_ids():
@@ -65,6 +66,14 @@ async def get_nearest_game() -> Games | None:
         return result.scalar_one_or_none()
 
 
+async def get_all_upcoming_games() -> list[Games]:
+    now = datetime.now(tz=pytz.timezone('Asia/Novosibirsk'))
+    stmt = select(Games).order_by(Games.start_date).filter(Games.start_date >= now)
+    async with async_session_factory() as session:
+        result = await session.execute(stmt)
+        return result.scalars().all()
+
+
 async def get_events_by_current_month() -> list[Event]:
     now = datetime.now(tz=pytz.timezone('Asia/Novosibirsk'))
 
@@ -73,6 +82,14 @@ async def get_events_by_current_month() -> list[Event]:
     stmt = select(Event).order_by(Event.start_date).filter(
         and_(Event.start_date >= now, Event.start_date <= end_of_month)
     )
+    async with async_session_factory() as session:
+        result = await session.execute(stmt)
+        return result.scalars().all()
+
+
+async def get_all_upcoming_events() -> list[Games]:
+    now = datetime.now(tz=pytz.timezone('Asia/Novosibirsk'))
+    stmt = select(Event).order_by(Event.start_date).filter(Event.start_date >= now)
     async with async_session_factory() as session:
         result = await session.execute(stmt)
         return result.scalars().all()
@@ -100,11 +117,53 @@ async def get_all_users_ids_for_broadcast(excluding_id: int):
         return result.scalars().all()
 
 
-async def get_commander_users_ids_for_broadcast(excluding_id: int):
-    stmt = select(TelegramUser.telegram_id).where(TelegramUser.is_active == True,
-                                                  TelegramUser.telegram_id.isnot(excluding_id),
-                                                  TelegramUser.is_commander == True)
+async def get_commander(excluding_id: int):
+    stmt = select(TelegramUser).where(
+        TelegramUser.is_active == True,
+        TelegramUser.telegram_id.isnot(excluding_id),
+        TelegramUser.is_commander == True)
 
+    async with async_session_factory() as session:
+        result = await session.execute(stmt)
+        return result.scalars().all()
+
+
+async def get_commander_and_responsible_person(excluding_id: int):
+    stmt = select(TelegramUser).where(
+        TelegramUser.is_active == True,
+        TelegramUser.telegram_id.isnot(excluding_id),
+        or_(
+            TelegramUser.is_commander == True,
+            TelegramUser.responsible_person == True,
+        )
+    )
+
+    async with async_session_factory() as session:
+        result = await session.execute(stmt)
+        return result.scalars().all()
+
+
+async def ban_user(telegram_id: int):
+    stmt = update(TelegramUser).where(TelegramUser.telegram_id == telegram_id).values(is_banned=True)
+    async with async_session_factory() as session:
+        await session.execute(stmt)
+        await session.commit()
+
+
+async def get_teams_with_users():
+    async with async_session_factory() as session:
+        # Запрашиваем все команды и их участников за один запрос
+        result = await session.execute(
+            select(Team).options(
+                sqlalchemy.orm.selectinload(Team.telegram_users)
+            ).order_by(Team.id)
+        )
+        teams = result.scalars().all()
+        return teams
+
+
+async def get_registration_requests():
+    stmt = select(TelegramUser).where(TelegramUser.is_active == False)
     async with async_session_factory() as session:
         result = await session.execute(stmt)
         return result.scalars().all()

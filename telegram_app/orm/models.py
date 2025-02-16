@@ -12,6 +12,8 @@ class Team(Base):
     name: Mapped[str] = mapped_column(String(64), unique=True)
     recruit: Mapped[bool] = mapped_column(Boolean, default=True)
 
+    telegram_users: Mapped[list["TelegramUser"]] = relationship("TelegramUser", back_populates="team_rel")
+
 
 class TelegramUser(Base):
     __tablename__ = 'users_telegramuser'

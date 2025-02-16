@@ -14,7 +14,7 @@ group_router.message.filter(
 
 
 @group_router.message(DeleteGroupMessage())
-async def handle_discussion_group_message(message: Message):
+async def delete_discussion_message(message: Message):
     await bot.delete_message(chat_id=settings.GROUP_ID, message_id=message.message_id)
     InMemoryMessageIdStorage.delete_msg(message.forward_from_message_id)
 

@@ -1,9 +1,15 @@
 from aiogram import Router, F
 from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 
+from telegram_app.filters.auth_filter import AuthFilter
+from telegram_app.handlers.utils import simple_universe_broadcast
+from telegram_app.init_bot import bot
+from telegram_app.keyboards.admin import cancel_btn
 from telegram_app.keyboards.main_text_kb import create_main_text_kb
+from telegram_app.orm.utils import get_admin_ids
 from telegram_app.utils.constants import Commands, MainKeyboardCommands
 
 main_router = Router()
@@ -16,7 +22,7 @@ async def cmd_start(message: Message, state: FSMContext):
     await message.answer('Добро пожаловать! Доступ только для участников ТГ Тоян', reply_markup=keyboard)
 
 
-@main_router.message(Command(Commands.MAIN_KEYBOARD))
+@main_router.message(Command(Commands.MENU))
 async def main_keyboard(message: Message):
     keyboard = await create_main_text_kb(message.from_user.id)
     if not message.from_user.is_bot:
@@ -31,3 +37,28 @@ async def about(message: Message):
            '<b>Уведомления</b>: Разнообразные уведомления отцов командиров\n\n'
            '<b>Информация</b>: Самостоятельно запрашивать информацию о предстоящих мероприятиях\n\n')
     await message.answer(msg)
+
+
+class Form(StatesGroup):
+    admin_q = State()
+
+
+@main_router.message(F.text == MainKeyboardCommands.ADMIN_Q, AuthFilter())
+async def question_for_admin(message: Message, state: FSMContext):
+    await message.answer(
+        'Напиши любое сообщение, я передам его админам',
+        reply_markup=cancel_btn()
+    )
+    await state.set_state(Form.admin_q)
+
+
+@main_router.message(F.content_type.in_({'text', 'photo', 'document', 'video', 'audio', 'voice'}),
+                     Form.admin_q)
+async def question_for_admin_broadcast(message: Message, state: FSMContext):
+    admin_ids = await get_admin_ids()
+    username = message.from_user.username or f'{message.from_user.full_name}'
+    for admin_id in admin_ids:
+        msg = f'Тут какой то поц @{username}, хочет задать вопрос админам:'
+        await bot.send_message(chat_id=admin_id, text=msg)
+    await simple_universe_broadcast(message, admin_ids)
+    await state.clear()

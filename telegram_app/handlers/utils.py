@@ -78,7 +78,7 @@ class UniversalMessageSender:
         return msg
 
 
-async def universe_broadcast(message: Message, state: FSMContext, user_ids: list[int]):
+async def admin_universe_broadcast(message: Message, state: FSMContext, user_ids: list[int]):
     await message.answer(f'Начинаю рассылку на {len(user_ids)} пользователей.')
 
     sender = UniversalMessageSender.init_from_message(message)
@@ -87,6 +87,12 @@ async def universe_broadcast(message: Message, state: FSMContext, user_ids: list
     await state.clear()
     await message.answer(f'Рассылка завершена. Сообщение получило <b>{good_send}</b>, '
                          f'НЕ получило <b>{bad_send}</b> пользователей.', reply_markup=create_admin_kb())
+
+
+async def simple_universe_broadcast(message: Message, user_ids: list[int]):
+    sender = UniversalMessageSender.init_from_message(message)
+    await sender.broadcast_message(users_ids=user_ids)
+    await message.answer('Ваше сообщение отправлено. Возможно его даже прочитают!')
 
 
 class InMemoryMessageIdStorage:
