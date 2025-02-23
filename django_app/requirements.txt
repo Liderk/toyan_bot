@@ -1,4 +1,5 @@
 Django==4.2.17
 django-environ==0.11.2
+gunicorn==23.0.0
 pillow==11.1.0
 psycopg==3.2.5

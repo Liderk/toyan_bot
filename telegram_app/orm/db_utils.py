@@ -1,12 +1,12 @@
 from sqlalchemy import URL
 
-from telegram_app.config.settings import POSTGRES_USER, POSTGRES_USER_PASSWORD, POSTGRES_HOST, POSTGRES_DB, DEBUG
+from telegram_app.config.settings import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_DB, DEBUG
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 url_object = URL.create(
     'postgresql+psycopg',
     username=POSTGRES_USER,
-    password=POSTGRES_USER_PASSWORD,
+    password=POSTGRES_PASSWORD,
     host=POSTGRES_HOST,
     database=POSTGRES_DB,
 )

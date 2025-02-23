@@ -20,7 +20,10 @@ GROUP_ID = env_config('GROUP_ID', cast=int)
 BOT_NAME = env_config('BOT_NAME', cast=str)
 
 # db settings
-POSTGRES_DB = env_config('POSTGRES_DB', cast=str)
-POSTGRES_USER = env_config('POSTGRES_USER', cast=str)
-POSTGRES_USER_PASSWORD = env_config('POSTGRES_USER_PASSWORD', cast=str)
-POSTGRES_HOST = env_config('POSTGRES_PASSWORD', cast=str, default='192.168.1.90')
+POSTGRES_DB = env_config('POSTGRES_DB', cast=str, default='postgres')
+POSTGRES_USER = env_config('POSTGRES_USER', cast=str, default='postgres')
+POSTGRES_PASSWORD = env_config('POSTGRES_PASSWORD', cast=str, default='postgres')
+POSTGRES_HOST = env_config('POSTGRES_HOST', cast=str, default='192.168.1.90')
+
+# media dir
+MEDIA_ROOT = env_config('MEDIA_ROOT', cast=str, default='/var/www/media')
