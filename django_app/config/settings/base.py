@@ -25,7 +25,7 @@ env = environ.Env()
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django_app-insecure-5!1w%3w708f*u&+==n8qx19f!0ua$@x4w$6qc04w9x%lgpf#jf'
+SECRET_KEY = env.str('SECRET_KEY', 'django_app-insecure-5!1w%3w708f*u&+==n8qx19f!0ua$@x4w$6qc04w9x%lgpf#jf')
 
 READ_DOT_ENV_FILE = env.bool('DJANGO_READ_DOT_ENV_FILE', default=False)
 if READ_DOT_ENV_FILE:
