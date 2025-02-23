@@ -45,7 +45,9 @@ class Games(Base):
     city: Mapped[str] = mapped_column(String(50), nullable=False)
     game_area: Mapped[str] = mapped_column(String(50), nullable=False)
     side_commander: Mapped[str] = mapped_column(String(50), nullable=True)
-    judas_commander: Mapped[str] = mapped_column(String(50), nullable=True)
+    toyan_commander: Mapped[str] = mapped_column(String(50), nullable=True)
+    game_map: Mapped[str] = mapped_column(String, nullable=True)
+    location_map: Mapped[str] = mapped_column(String, nullable=True)
 
 
 class EventChoices:

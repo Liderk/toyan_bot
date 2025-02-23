@@ -45,7 +45,7 @@ async def get_nearest_game_data():
             f'Дата начала: {start_date}\n'
             f'Город: {game.city}\n'
             f'Полигон: {game.game_area}\n'
-            f'Командующий Тоян: {game.judas_commander}\n'
+            f'Командующий Тоян: {game.toyan_commander}\n'
             f'Командующий стороны: {game.side_commander}')
 
 

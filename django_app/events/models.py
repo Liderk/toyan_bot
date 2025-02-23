@@ -40,9 +40,21 @@ class Games(models.Model):
         blank=True,
         null=True,
     )
-    judas_commander = models.CharField(
-        verbose_name='Командующий Иудой',
+    toyan_commander = models.CharField(
+        verbose_name='Командующий Тояном',
         max_length=50,
+        blank=True,
+        null=True,
+    )
+    game_map = models.ImageField(
+        upload_to='images/game_map',
+        verbose_name='Карта',
+        blank=True,
+        null=True,
+    )
+    location_map = models.ImageField(
+        upload_to='images/location_map',
+        verbose_name='Карта проезда',
         blank=True,
         null=True,
     )
@@ -89,8 +101,8 @@ class Event(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Событие'
-        verbose_name_plural = 'События'
+        verbose_name = 'Мероприятие'
+        verbose_name_plural = 'Мероприятия'
 
     def __str__(self):
         return self.name
