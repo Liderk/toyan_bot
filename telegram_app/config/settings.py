@@ -18,3 +18,9 @@ DEBUG = env_config('DEBUG', default=False, cast=bool)
 CHAT_ID = env_config('CHAT_ID', cast=int)
 GROUP_ID = env_config('GROUP_ID', cast=int)
 BOT_NAME = env_config('BOT_NAME', cast=str)
+
+# db settings
+POSTGRES_DB = env_config('POSTGRES_DB', cast=str)
+POSTGRES_USER = env_config('POSTGRES_USER', cast=str)
+POSTGRES_USER_PASSWORD = env_config('POSTGRES_USER_PASSWORD', cast=str)
+POSTGRES_HOST = env_config('POSTGRES_PASSWORD', cast=str, default='192.168.1.90')

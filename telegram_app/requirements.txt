@@ -1,6 +1,7 @@
 aiosqlite==0.20.0
 aiogram==3.17.0
 APScheduler==3.11.0
+psycopg==3.2.5
 python-decouple==3.8
 pytz==2024.2
 SQLAlchemy==2.0.36

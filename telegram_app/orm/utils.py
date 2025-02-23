@@ -7,7 +7,7 @@ import sqlalchemy
 from sqlalchemy import select, and_, update, or_
 from sqlalchemy.exc import IntegrityError
 
-from telegram_app.orm.db_sqlite_utils import async_session_factory
+from telegram_app.orm.db_utils import async_session_factory
 from telegram_app.orm.models import TelegramUser, Event, Games, Team
 
 

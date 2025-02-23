@@ -3,7 +3,7 @@ from typing import Any
 
 from sqlalchemy import select
 
-from telegram_app.orm.db_sqlite_utils import async_session_factory
+from telegram_app.orm.db_utils import async_session_factory
 from telegram_app.orm.models import Team
 from telegram_app.utils.constants import CommandRole, COMMANDER, COMMANDER_ASSISTANT, STORMTROOPER
 
