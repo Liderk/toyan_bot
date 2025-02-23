@@ -85,39 +85,39 @@ volumes:
     driver_opts:
         type: none
         o: 'bind'
-        device: /media/volumes/toyan_bot/db
+        device: /media/projects/volumes/toyan_bot/db
 
   media:
     driver: local
     driver_opts:
       type: none
       o: 'bind'
-      device: /media/volumes/toyan_bot/media
+      device: /media/projects/volumes/toyan_bot/media
 
   static:
     driver: local
     driver_opts:
       type: none
       o: 'bind'
-      device: /media/volumes/toyan_bot/static
+      device: /media/projects/volumes/toyan_bot/static
 
   logs:
     driver: local
     driver_opts:
       type: none
       o: 'bind'
-      device: /media/volumes/toyan_bot/logs
+      device: /media/projects/volumes/toyan_bot/logs
 
   portainer_data:
     driver: local
     driver_opts:
       type: none
       o: 'bind'
-      device: /media/volumes/toyan_bot/portainer_data
+      device: /media/projects/volumes/toyan_bot/portainer_data
 
   nginx_data:
     driver: local
     driver_opts:
       type: none
       o: 'bind'
-      device: /media/volumes/toyan_bot/nginx_data
+      device: /media/projects/volumes/toyan_bot/nginx_data

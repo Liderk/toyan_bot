@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
 COPY dockerization/bot/scripts/run.sh dockerization/bot/scripts/run.sh
-COPY dockerization/scripts/run.sh dockerization/scripts/run.sh
+COPY dockerization/scripts/wait_postgres.sh dockerization/scripts/wait_postgres.sh
 
 COPY telegram_app/requirements.txt .
 
