@@ -128,7 +128,7 @@ DATABASES = {
 # STATIC
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-root
-STATIC_ROOT = Path('/var/www/static') / 'staticfiles'
+STATIC_ROOT = Path('/var/www/static')
 if not STATIC_ROOT.exists():
     STATIC_ROOT.mkdir(parents=True, exist_ok=True)
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-url
