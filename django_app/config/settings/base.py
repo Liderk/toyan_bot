@@ -179,3 +179,4 @@ ADMIN_URL = 'admin/'
 AUTH_USER_MODEL = 'users.User'
 
 CHAT_ID = env.str('CHAT_ID')
+BOT_TOKEN = env.str('TOKEN')

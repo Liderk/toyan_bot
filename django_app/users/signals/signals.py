@@ -2,14 +2,13 @@ import asyncio
 from datetime import datetime, timedelta
 
 import pytz
-from aiogram.methods import CreateChatInviteLink
 from django.conf import settings
 from django.db.models import Model
 from django.dispatch import receiver
 
-from telegram_app.init_bot import bot
 from users.models import TelegramUser
 from users.signals.custom_signals import telegram_user_accepted
+from utils.telegram_bot import bot
 
 
 @receiver(signal=telegram_user_accepted, sender=TelegramUser)
