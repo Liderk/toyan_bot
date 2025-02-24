@@ -47,7 +47,7 @@ services:
     restart: always
     command: >
       bash -c "dockerization/scripts/wait_postgres.sh && 
-      dockerization/backend/scripts/run.sh"
+      dockerization/bot/scripts/run.sh"
 
   portainer:
     container_name: portainer
