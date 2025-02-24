@@ -2,4 +2,4 @@
 
 set -e
 
-python run_bot.py
+python telegram_app/run_bot.py

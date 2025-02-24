@@ -14,4 +14,4 @@ COPY telegram_app/requirements.txt .
 
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-COPY ./telegram_app/ .
+COPY ./telegram_app/ telegram_app/
