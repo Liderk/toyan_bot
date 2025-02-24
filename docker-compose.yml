@@ -72,6 +72,8 @@ services:
       - ./dockerization/nginx/ssl:/etc/nginx/conf.d/ssl
       - ./dockerization/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - logs:/code/logs/
+      - static:/var/www/static
+      - media:/var/www/media
     ports:
       - 80:80
       - 443:443
