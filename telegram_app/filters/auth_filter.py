@@ -1,7 +1,7 @@
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
 
-from telegram_app.orm.utils import find_user_by_telegram_id
+from ..orm.utils import find_user_by_telegram_id
 
 
 class AuthFilter(BaseFilter):

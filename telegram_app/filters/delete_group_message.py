@@ -1,8 +1,8 @@
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
 
-from telegram_app.handlers.utils import InMemoryMessageIdStorage
-from telegram_app.utils.constants import MsgAction
+from ..handlers.utils import InMemoryMessageIdStorage
+from ..utils.constants import MsgAction
 
 
 class DeleteGroupMessage(BaseFilter):

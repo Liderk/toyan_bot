@@ -2,14 +2,14 @@ import asyncio
 from aiogram.types import BotCommand, BotCommandScopeDefault
 from init_bot import bot, dp, scheduler
 from handlers.main import main_router
-from telegram_app.config import settings
-from telegram_app.handlers.admin import admin_router
-from telegram_app.handlers.channel import channel_router
-from telegram_app.handlers.group import group_router
-from telegram_app.handlers.info import info_router
-from telegram_app.handlers.register import register_router
-from telegram_app.orm.utils import get_admin_ids
-from telegram_app.utils.constants import Commands
+from config import settings
+from handlers.admin import admin_router
+from handlers.channel import channel_router
+from handlers.group import group_router
+from handlers.info import info_router
+from handlers.register import register_router
+from orm.utils import get_admin_ids
+from .utils.constants import Commands
 
 
 # from work_time.time_func import send_time_msg

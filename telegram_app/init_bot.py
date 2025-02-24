@@ -6,7 +6,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from decouple import config
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from telegram_app.config.settings import BOT_TOKEN
+from .config.settings import BOT_TOKEN
 
 
 scheduler = AsyncIOScheduler(timezone='Asia/Novosibirsk')

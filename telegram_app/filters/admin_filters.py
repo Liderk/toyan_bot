@@ -1,7 +1,7 @@
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
 
-from telegram_app.orm.utils import get_admin_ids
+from ..orm.utils import get_admin_ids
 
 
 class IsAdmin(BaseFilter):

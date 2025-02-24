@@ -6,15 +6,15 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.chat_action import ChatActionSender
 
-from telegram_app.config import settings
-from telegram_app.filters.access_group import AccessGroupFilter
-from telegram_app.filters.auth_filter import AuthFilter
-from telegram_app.init_bot import bot
-from telegram_app.keyboards.inline_info_kb import create_info_inline_kb
-from telegram_app.orm.managers import EventManager
-from telegram_app.orm.utils import get_nearest_game, get_nearest_event, get_games_by_current_month, \
+from ..config import settings
+from ..filters.access_group import AccessGroupFilter
+from ..filters.auth_filter import AuthFilter
+from ..init_bot import bot
+from ..keyboards.inline_info_kb import create_info_inline_kb
+from ..orm.managers import EventManager
+from ..orm.utils import get_nearest_game, get_nearest_event, get_games_by_current_month, \
     get_events_by_current_month, get_all_upcoming_games, get_all_upcoming_events
-from telegram_app.utils.constants import Commands, MainKeyboardCommands, EventsInfo
+from ..utils.constants import Commands, MainKeyboardCommands, EventsInfo
 
 info_router = Router()
 info_router.message.filter(

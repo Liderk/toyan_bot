@@ -1,11 +1,11 @@
 from aiogram import Router
 from aiogram.types import Message
 
-from telegram_app.config import settings
-from telegram_app.filters.access_group import AccessGroupFilter
-from telegram_app.filters.delete_group_message import DeleteGroupMessage
-from telegram_app.handlers.utils import InMemoryMessageIdStorage
-from telegram_app.init_bot import bot
+from ..config import settings
+from ..filters.access_group import AccessGroupFilter
+from ..filters.delete_group_message import DeleteGroupMessage
+from ..handlers.utils import InMemoryMessageIdStorage
+from ..init_bot import bot
 
 group_router = Router()
 group_router.message.filter(

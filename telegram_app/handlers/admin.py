@@ -3,14 +3,14 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
-from telegram_app.config import settings
-from telegram_app.filters.admin_filters import IsAdmin
-from telegram_app.handlers.utils import UniversalMessageSender, admin_universe_broadcast
-from telegram_app.keyboards.admin import create_admin_kb, cancel_btn
-from telegram_app.orm.managers import TeamManager
-from telegram_app.orm.utils import get_all_users_ids_for_broadcast, get_commander_and_responsible_person, ban_user, \
+from ..config import settings
+from ..filters.admin_filters import IsAdmin
+from handlers.utils import UniversalMessageSender, admin_universe_broadcast
+from ..keyboards.admin import create_admin_kb, cancel_btn
+from ..orm.managers import TeamManager
+from ..orm.utils import get_all_users_ids_for_broadcast, get_commander_and_responsible_person, ban_user, \
     get_teams_with_users, get_registration_requests, get_commander
-from telegram_app.utils.constants import MainKeyboardCommands, AdminKeyboardCommands
+from ..utils.constants import MainKeyboardCommands, AdminKeyboardCommands
 
 admin_router = Router()
 admin_router.message.filter(IsAdmin())

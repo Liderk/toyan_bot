@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from telegram_app.utils.constants import Commands
+from ..utils.constants import Commands
 
 
 def create_info_inline_kb(info_menu: dict) -> InlineKeyboardMarkup:
