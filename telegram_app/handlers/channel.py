@@ -3,11 +3,11 @@ import logging
 from aiogram import Router, F
 from aiogram.types import Message
 
-from ..config import settings
-from ..filters.access_group import AccessGroupFilter
-from ..handlers.info import get_nearest_game_data, get_nearest_event_data, \
+from config import settings
+from filters.access_group import AccessGroupFilter
+from handlers.info import get_nearest_game_data, get_nearest_event_data, \
     get_data_for_games_by_current_month, get_data_for_events_by_current_month
-from ..utils.constants import EventsInfo
+from utils.constants import EventsInfo
 
 logger = logging.getLogger(__name__)
 

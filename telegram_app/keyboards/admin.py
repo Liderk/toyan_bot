@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from ..utils.constants import AdminKeyboardCommands
+from utils.constants import AdminKeyboardCommands
 
 
 def create_admin_kb():

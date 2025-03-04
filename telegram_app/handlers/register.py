@@ -9,10 +9,10 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 from aiogram.utils.chat_action import ChatActionSender
 
-from ..init_bot import bot
-from ..orm.managers import TeamManager, CommandRoleManager
-from ..orm.utils import create_inactive_user, find_user_by_telegram_id, get_admin_ids, get_admins
-from ..utils.constants import Commands, COMMANDER, COMMANDER_ASSISTANT
+from init_bot import bot
+from orm.managers import TeamManager, CommandRoleManager
+from orm.utils import create_inactive_user, find_user_by_telegram_id, get_admin_ids, get_admins
+from utils.constants import Commands, COMMANDER, COMMANDER_ASSISTANT
 
 register_router = Router()
 

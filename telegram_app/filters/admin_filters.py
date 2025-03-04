@@ -1,7 +1,7 @@
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
 
-from ..orm.utils import get_admin_ids
+from orm.utils import get_admin_ids
 
 
 class IsAdmin(BaseFilter):

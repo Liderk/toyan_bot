@@ -3,14 +3,14 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
-from ..config import settings
-from ..filters.admin_filters import IsAdmin
+from config import settings
+from filters.admin_filters import IsAdmin
 from handlers.utils import UniversalMessageSender, admin_universe_broadcast
-from ..keyboards.admin import create_admin_kb, cancel_btn
-from ..orm.managers import TeamManager
-from ..orm.utils import get_all_users_ids_for_broadcast, get_commander_and_responsible_person, ban_user, \
+from keyboards.admin import create_admin_kb, cancel_btn
+from orm.managers import TeamManager
+from orm.utils import get_all_users_ids_for_broadcast, get_commander_and_responsible_person, ban_user, \
     get_teams_with_users, get_registration_requests, get_commander
-from ..utils.constants import MainKeyboardCommands, AdminKeyboardCommands
+from utils.constants import MainKeyboardCommands, AdminKeyboardCommands
 
 admin_router = Router()
 admin_router.message.filter(IsAdmin())

@@ -9,7 +9,7 @@ from handlers.group import group_router
 from handlers.info import info_router
 from handlers.register import register_router
 from orm.utils import get_admin_ids
-from .utils.constants import Commands
+from utils.constants import Commands
 
 
 # from work_time.time_func import send_time_msg

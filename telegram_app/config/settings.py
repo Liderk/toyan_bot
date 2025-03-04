@@ -11,9 +11,6 @@ else:
 
 BOT_TOKEN = env_config('TOKEN')
 
-DATA_BASE_DIR = Path(env_config('DATA_BASE_DIR', cast=str))
-DATA_BASE_NAME = env_config('DATA_BASE_NAME', default='airsoft_bot.sqlite3', cast=str)
-
 DEBUG = env_config('DEBUG', default=False, cast=bool)
 CHAT_ID = env_config('CHAT_ID', cast=int)
 GROUP_ID = env_config('GROUP_ID', cast=int)

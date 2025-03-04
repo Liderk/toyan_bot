@@ -1,11 +1,11 @@
 from aiogram import Router
 from aiogram.types import Message
 
-from ..config import settings
-from ..filters.access_group import AccessGroupFilter
-from ..filters.delete_group_message import DeleteGroupMessage
-from ..handlers.utils import InMemoryMessageIdStorage
-from ..init_bot import bot
+from config import settings
+from filters.access_group import AccessGroupFilter
+from filters.delete_group_message import DeleteGroupMessage
+from handlers.utils import InMemoryMessageIdStorage
+from init_bot import bot
 
 group_router = Router()
 group_router.message.filter(

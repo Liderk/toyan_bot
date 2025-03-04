@@ -6,15 +6,15 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.chat_action import ChatActionSender
 
-from ..config import settings
-from ..filters.access_group import AccessGroupFilter
-from ..filters.auth_filter import AuthFilter
-from ..init_bot import bot
-from ..keyboards.inline_info_kb import create_info_inline_kb
-from ..orm.managers import EventManager
-from ..orm.utils import get_nearest_game, get_nearest_event, get_games_by_current_month, \
+from config import settings
+from filters.access_group import AccessGroupFilter
+from filters.auth_filter import AuthFilter
+from init_bot import bot
+from keyboards.inline_info_kb import create_info_inline_kb
+from orm.managers import EventManager
+from orm.utils import get_nearest_game, get_nearest_event, get_games_by_current_month, \
     get_events_by_current_month, get_all_upcoming_games, get_all_upcoming_events
-from ..utils.constants import Commands, MainKeyboardCommands, EventsInfo
+from utils.constants import Commands, MainKeyboardCommands, EventsInfo
 
 info_router = Router()
 info_router.message.filter(
@@ -26,7 +26,7 @@ async def get_nearest_event_data():
     event = await get_nearest_event()
     if event is None:
         return f'Ближайших мероприятий нет'
-    event_type = EventManager.get_by_id(event.event_type)
+    event_type = await EventManager.get_by_id(event.event_type)
     event_date = event.start_date.strftime('%H:%M %d.%m.%Y')
     return (f'Название: {event.name}\n'
             f'Тип события: {event_type}\n'

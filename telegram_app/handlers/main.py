@@ -4,13 +4,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 
-from ..filters.auth_filter import AuthFilter
-from ..handlers.utils import simple_universe_broadcast
-from ..init_bot import bot
-from ..keyboards.admin import cancel_btn
-from ..keyboards.main_text_kb import create_main_text_kb
-from ..orm.utils import get_admin_ids
-from ..utils.constants import Commands, MainKeyboardCommands
+from filters.auth_filter import AuthFilter
+from handlers.utils import simple_universe_broadcast
+from init_bot import bot
+from keyboards.admin import cancel_btn
+from keyboards.main_text_kb import create_main_text_kb
+from orm.utils import get_admin_ids
+from utils.constants import Commands, MainKeyboardCommands
 
 main_router = Router()
 

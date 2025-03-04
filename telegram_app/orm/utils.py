@@ -7,8 +7,8 @@ import sqlalchemy
 from sqlalchemy import select, and_, update, or_
 from sqlalchemy.exc import IntegrityError
 
-from ..orm.db_utils import async_session_factory
-from ..orm.models import TelegramUser, Event, Games, Team
+from orm.db_utils import async_session_factory
+from orm.models import TelegramUser, Event, Games, Team
 
 
 async def get_admin_ids():

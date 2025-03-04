@@ -5,9 +5,9 @@ from aiogram.enums import ContentType
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from ..init_bot import bot
-from ..keyboards.admin import create_admin_kb
-from ..utils.constants import MsgAction
+from init_bot import bot
+from keyboards.admin import create_admin_kb
+from utils.constants import MsgAction
 
 logger = logging.getLogger(__file__)
 

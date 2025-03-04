@@ -9,7 +9,7 @@ from events.models import Games, Event, NotificationPeriod, GameEventNotificatio
 class GameEventNotificationSchedulerInline(GenericTabularInline):
     model = GameEventNotification
     extra = 0
-    readonly_fields = ('notification_date',)
+    readonly_fields = ('notification_date', 'notified')
 
 
 @admin.register(Games)

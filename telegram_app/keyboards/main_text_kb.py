@@ -1,7 +1,7 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
-from ..orm.utils import get_admin_ids
-from ..utils.constants import MainKeyboardCommands
+from orm.utils import get_admin_ids
+from utils.constants import MainKeyboardCommands
 
 
 async def create_main_text_kb(user_id: int):

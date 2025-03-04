@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, TIMESTAMP, DATETIME, SmallInteger, ForeignKey
-from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship
+from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship, backref
 
 Base = declarative_base()
 
@@ -88,22 +88,27 @@ class NotificationPeriod(Base):
         return f"NotificationPeriod(id={self.id}, period={self.period}, amount={self.amount})"
 
 
-# # Модель GameEventNotification
-# class GameEventNotification(Base):
-#     __tablename__ = 'events_gameeventnotification'
-#
-#     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-#     content_type: Mapped[str] = mapped_column(String(250), nullable=False)
-#     object_id: Mapped[int] = mapped_column(Integer, nullable=False)
-#     notification_period_id: Mapped[int] = mapped_column(Integer, ForeignKey('notification_period.id'), nullable=False)
-#     notified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-#     notification_date: Mapped[datetime] = mapped_column(DATETIME, nullable=True)
-#
-#     notification_period: Mapped['NotificationPeriod'] = relationship('NotificationPeriod', back_populates='schedulers')
-#
-#     def __repr__(self):
-#         return f"GameEventNotification(id={self.id}, content_type={self.content_type}, object_id={self.object_id})"
+class ContentType(Base):
+    __tablename__ = 'django_content_type'
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    app_label: Mapped[str]
+    model: Mapped[str]
 
 
-# # Связь между NotificationPeriod и GameEventNotification
-# NotificationPeriod.schedulers = relationship('GameEventNotification', back_populates='notification_period')
+class GameEventNotification(Base):
+    __tablename__ = 'events_gameeventnotification'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    content_type_id: Mapped[int] = mapped_column(Integer, ForeignKey('django_content_type.id'), nullable=False)
+    object_id: Mapped[int]
+    notification_period_id: Mapped[int] = mapped_column(Integer,
+                                                        ForeignKey('events_notificationperiod.id'), nullable=False)
+    notified: Mapped[bool] = mapped_column(Boolean, default=False)
+    notification_date: Mapped[datetime] = mapped_column(DATETIME, nullable=True)
+    allow_discussion: Mapped[bool] = mapped_column(Boolean, default=True)
+    message_for: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+    # Relationships
+    content_type: Mapped["ContentType"] = relationship(backref=backref('notifications'))
+    notification_period: Mapped["NotificationPeriod"] = relationship(backref=backref('schedulers'))
