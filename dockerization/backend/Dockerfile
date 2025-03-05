@@ -5,15 +5,15 @@ WORKDIR /opt/app
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
-RUN apt-get update && apt-get install --no-install-recommends -y libpq5
-
-COPY ./dockerization/backend/scripts/run.sh dockerization/backend/scripts/run.sh
-COPY ./dockerization/scripts/wait_postgres.sh dockerization/scripts/wait_postgres.sh
+RUN apt-get update && apt-get install --no-install-recommends -y libpq5 curl
 
 COPY django_app/requirements.txt .
 
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-COPY . .
-
 COPY ./django_app/ .
+COPY --chmod=777 ./dockerization/backend/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
+EXPOSE 5000
+
+ENTRYPOINT ["docker-entrypoint.sh"]
