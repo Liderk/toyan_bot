@@ -65,9 +65,8 @@ async def get_data_for_all_games():
 
 async def get_data_for_events_by_current_month():
     events = await get_events_by_current_month()
-
     return '\n-----\n'.join([f'{event.name}, '
-                             f'{EventManager.get_by_id(event.event_type)}, '
+                             f'{await EventManager.get_by_id(event.event_type)}, '
                              f'{event.descriptions}, '
                              f'{event.start_date.strftime("%H:%M %d.%m.%Y")}'
                              for event in events])
@@ -77,7 +76,7 @@ async def get_data_for_all_upcoming_events():
     events = await get_all_upcoming_events()
 
     return '\n-----\n'.join([f'{event.name}, '
-                             f'{EventManager.get_by_id(event.event_type)}, '
+                             f'{await EventManager.get_by_id(event.event_type)}, '
                              f'{event.descriptions}, '
                              f'{event.start_date.strftime("%H:%M %d.%m.%Y")}'
                              for event in events])
@@ -97,10 +96,6 @@ INFO_MENU = {
 async def init_info(message: Message, state: FSMContext):
     await state.clear()
     if message.chat.type in ('group', 'supergroup'):
-        await bot.send_message(chat_id=message.chat.id,
-                               reply_to_message_id=message.message_thread_id,
-                               reply_markup=create_info_inline_kb(INFO_MENU),
-                               text='Что ты хочешь узнать?')
         return
     await message.answer('Что ты хочешь узнать?',
                          reply_markup=create_info_inline_kb(INFO_MENU))
@@ -115,12 +110,6 @@ async def info_detail(call: CallbackQuery):
     msg_text = f'<b>{info_data.get(Commands.MENU)}</b>\n\n' \
                f'{data}\n\n' \
                f'Что то еще, собака сутулая?'
-    if not call.message.from_user.is_bot:
-        async with ChatActionSender(bot=bot, chat_id=call.from_user.id, action="typing"):
-            await asyncio.sleep(2)
-            await call.message.answer(msg_text, reply_markup=create_info_inline_kb(INFO_MENU))
-            return
-
-    await bot.send_message(chat_id=call.message.chat.id,
-                           reply_to_message_id=call.message.message_thread_id,
-                           text=msg_text)
+    async with ChatActionSender(bot=bot, chat_id=call.from_user.id, action="typing"):
+        await asyncio.sleep(2)
+        await call.message.answer(msg_text, reply_markup=create_info_inline_kb(INFO_MENU))
