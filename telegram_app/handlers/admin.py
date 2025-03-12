@@ -152,7 +152,7 @@ async def admin_commander_broadcast_handler(call: CallbackQuery, state: FSMConte
 
 @admin_router.message(F.content_type.in_({'text', 'photo', 'document', 'video', 'audio', 'voice'}),
                       Form.discussion_without_comment)
-async def channel_message_with_comment(message: Message, state: FSMContext):
+async def channel_message_without_comment(message: Message, state: FSMContext):
     sender = UniversalMessageSender.init_from_message(message)
     await sender.message_without_discussion(settings.CHAT_ID, settings.GROUP_ID)
 

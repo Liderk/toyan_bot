@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, TIMESTAMP, DATETIME, SmallInteger, ForeignKey
@@ -66,6 +67,7 @@ class Event(Base):
     organizers: Mapped[str] = mapped_column(String(250), nullable=False)
     start_date: Mapped[datetime] = mapped_column(DATETIME, nullable=False)
     end_date: Mapped[datetime] = mapped_column(DATETIME, nullable=False)
+    location_map: Mapped[str] = mapped_column(String, nullable=True)
 
 
 # Модель PeriodChoices (перечисление)
@@ -94,6 +96,12 @@ class ContentType(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     app_label: Mapped[str]
     model: Mapped[str]
+
+
+@dataclass
+class RecipientType:
+    BOT: int = 1
+    CHANNEL: int = 2
 
 
 class GameEventNotification(Base):

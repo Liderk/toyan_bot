@@ -108,9 +108,9 @@ async def get_games_by_current_month() -> list[Games]:
         return result.scalars().all()
 
 
-async def get_all_users_ids_for_broadcast(excluding_id: int):
+async def get_all_users_ids_for_broadcast(excluding_id: int) -> list[int]:
     stmt = select(TelegramUser.telegram_id).where(TelegramUser.is_active == True,
-                                                  TelegramUser.telegram_id.isnot(excluding_id))
+                                                  TelegramUser.telegram_id != excluding_id)
 
     async with async_session_factory() as session:
         result = await session.execute(stmt)
@@ -120,7 +120,7 @@ async def get_all_users_ids_for_broadcast(excluding_id: int):
 async def get_commander(excluding_id: int):
     stmt = select(TelegramUser).where(
         TelegramUser.is_active == True,
-        TelegramUser.telegram_id.isnot(excluding_id),
+        TelegramUser.telegram_id != excluding_id,
         TelegramUser.is_commander == True)
 
     async with async_session_factory() as session:
@@ -131,7 +131,7 @@ async def get_commander(excluding_id: int):
 async def get_commander_and_responsible_person(excluding_id: int):
     stmt = select(TelegramUser).where(
         TelegramUser.is_active == True,
-        TelegramUser.telegram_id.isnot(excluding_id),
+        TelegramUser.telegram_id != excluding_id,
         or_(
             TelegramUser.is_commander == True,
             TelegramUser.responsible_person == True,
