@@ -99,6 +99,12 @@ class Event(models.Model):
     end_date = models.DateTimeField(
         verbose_name='Дата окончания',
     )
+    location_map = models.ImageField(
+        upload_to='images/location_map',
+        verbose_name='Карта проезда',
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = 'Мероприятие'
@@ -164,7 +170,7 @@ class GameEventNotification(models.Model):
     message_for = models.SmallIntegerField(
         verbose_name='Сообщение для',
         choices=MessageFor.choices,
-        default=MessageFor.CHANNEL,
+        default=MessageFor.BOT,
     )
 
     class Meta:
