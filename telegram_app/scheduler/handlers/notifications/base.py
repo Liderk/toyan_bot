@@ -6,13 +6,12 @@ from aiogram.types import InputMediaDocument
 from sqlalchemy import update, select, and_
 
 from config import settings
-from handlers.utils import InMemoryMessageIdStorage
-from init_bot import bot
 from orm.db_utils import async_session_factory
 from orm.managers import ContentTypeManager
 from orm.models import NotificationPeriod, Event, Games, GameEventNotification, PeriodChoices, RecipientType
 from orm.utils import get_all_users_ids_for_broadcast
-from utils.constants import MsgAction
+
+from utils.common import send_message
 
 
 class INotification(ABC):
@@ -67,9 +66,9 @@ class INotification(ABC):
         message_files = self.prepare_message_files(obj, message_text)
         chat_ids = await self.get_chat_ids(notification_data)
         for chat_id in chat_ids:
-            await self.send_message(chat_id, message_text,
-                                    message_files,
-                                    message_with_comment=notification_data.allow_discussion)
+            await send_message(chat_id, message_text,
+                               message_files,
+                               message_with_comment=notification_data.allow_discussion)
 
     @abstractmethod
     def prepare_message_files(self, obj: (Event | Games), message_text: str) -> list[InputMediaDocument]:
@@ -78,18 +77,6 @@ class INotification(ABC):
     @abstractmethod
     def prepare_message_text(self, obj: (Event | Games)) -> str:
         pass
-
-    @staticmethod
-    async def send_message(chat_id: int, message_text: str, media: list[InputMediaDocument],
-                           message_with_comment: bool = False) -> None:
-        if media:
-            msg_data = await bot.send_media_group(chat_id=chat_id, media=media)
-        else:
-            msg_data = await bot.send_message(chat_id=chat_id, text=message_text, parse_mode="HTML")
-
-        if not message_with_comment:
-            msg = msg_data[0]
-            InMemoryMessageIdStorage.add_msg(msg.message_id, MsgAction.delete)
 
     @staticmethod
     async def set_notification_mark(notification_obj: GameEventNotification):

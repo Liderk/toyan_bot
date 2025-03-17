@@ -50,6 +50,12 @@ class CommandRole(NamedTuple):
     marker: int
 
 
+@dataclass
+class InfoExtendCommands:
+    abort_info_commands = 'abort_info'
+    come_back = 'back'
+
+
 COMMANDER = CommandRole('командир', 1)
 COMMANDER_ASSISTANT = CommandRole('заместитель', 2)
 STORMTROOPER = CommandRole('боец', 3)
