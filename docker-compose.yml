@@ -27,14 +27,14 @@ services:
         postgres:
           condition: service_healthy
       env_file:
-          - .env
+          - django_app/.env
   bot:
     image: ghcr.io/liderk/bot:latest
     hostname: bot
     volumes:
       - media:/var/www/media
     env_file:
-      - .env
+      - telegram_app/.env
     restart: always
     depends_on:
       postgres:
