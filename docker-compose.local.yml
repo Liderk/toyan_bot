@@ -58,8 +58,8 @@ services:
           target: /opt/app
   nginx:
     build:
-      context: ./dockerization/nginx
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./dockerization/nginx/Dockerfile
     volumes:
       - logs:/code/logs/
       - static:/var/www/static

@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: ghcr.io/liderk/postgres:latest
+    image: ghcr.io/liderk/toyan_bot_postgres:latest
     restart: always
     healthcheck:
       test: [ "CMD-SHELL", "-c", "pg_isready --quiet -U ${POSTGRES_USER} -d postgres" ]
@@ -13,7 +13,7 @@ services:
     env_file:
       - .env
   backend:
-      image: ghcr.io/liderk/backend:latest
+      image: ghcr.io/liderk/toyan_bot_backend:latest
       restart: always
       healthcheck:
         test: [ "CMD-SHELL", "-c", "curl -o /dev/null http://localhost:5000/admin/login/?next=/admin/" ]
@@ -27,20 +27,22 @@ services:
         postgres:
           condition: service_healthy
       env_file:
-          - django_app/.env
+          - .env
   bot:
-    image: ghcr.io/liderk/bot:latest
+    image: ghcr.io/liderk/toyan_bot_bot:latest
     hostname: bot
     volumes:
       - media:/var/www/media
     env_file:
-      - telegram_app/.env
+      - .env
     restart: always
     depends_on:
       postgres:
         condition: service_healthy
+      backend:
+        condition: service_healthy
   portainer:
-    image: ghcr.io/liderk/portainer:latest
+    image: ghcr.io/liderk/toyan_bot_portainer:latest
     build:
       context: .
       dockerfile: dockerization/portainer/Dockerfile
@@ -50,7 +52,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
   nginx:
-    image: ghcr.io/liderk/nginx:latest
+    image: ghcr.io/liderk/toyan_bot_nginx:latest
     volumes:
       - logs:/code/logs/
       - static:/var/www/static
@@ -63,44 +65,13 @@ services:
       backend:
         condition: service_healthy
 volumes:
-  pg_data:
-    driver: local
-    driver_opts:
-        type: none
-        o: 'bind'
-        device: /srv/volumes/db
-
   media:
-    driver: local
-    driver_opts:
-      type: none
-      o: 'bind'
-      device: /srv/volumes/media
-
   static:
-    driver: local
-    driver_opts:
-      type: none
-      o: 'bind'
-      device: /srv/volumes/static
-
   logs:
     driver: local
     driver_opts:
       type: none
       o: 'bind'
-      device: /srv/volumes/logs
-
+      device: /home/app/toyan_bot/logs
+  pg_data:
   portainer_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: 'bind'
-      device: /srv/volumes/portainer_data
-
-  nginx_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: 'bind'
-      device: /srv/volumes/nginx_data
