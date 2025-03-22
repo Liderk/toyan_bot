@@ -1,9 +1,8 @@
 name: Deploy in Docker
 on:
-#  push:
-#        branches: [ "master" ]
-#    tags:
-#      - '*'
+  push:
+    tags:
+      - '*'
   workflow_dispatch:
 
 env:
@@ -81,7 +80,7 @@ jobs:
       - name: Rerun app
         if: github.event_name != 'pull_request'
         run: |
-          ssh -i $(pwd)/secret_key -o StrictHostKeyChecking=no app@212.109.218.91 "
+          ssh -i $(pwd)/secret_key -o StrictHostKeyChecking=no -p 2707 app@212.109.218.91 "
             docker login ghcr.io --username=${{ github.actor }} --password=${{ secrets.GITHUB_TOKEN }};
             cd ~/toyan_bot;
             docker compose pull;
