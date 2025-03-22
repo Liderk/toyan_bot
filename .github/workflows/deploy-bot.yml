@@ -25,6 +25,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check for changes in source code
+        run: |
+          DIR=""
+          CHANGED_FILES=$(git show --name-only --pretty=format:)
+          
+          if [ "${{ matrix.app }}" == "backend" ]; then
+            DIR="./django_app"
+          elif [ "${{ matrix.app }}" == "bot" ]; then
+            DIR="./telegram_app"
+          fi
+          
+          if (echo "$CHANGED_FILES" | grep -q "./dockerization/${{ matrix.app }}") || \
+            { [ -n "$DIR" ] && echo "$CHANGED_FILES" | grep -q "$DIR"; }; then
+            echo "CHANGED=true" >> $GITHUB_ENV
+          fi
+
       - name: Install cosign
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@6e04d228eb30da1757ee4e1dd75a0ec73a653e06
@@ -54,6 +70,7 @@ jobs:
       - name: Build and push Docker image for ${{ matrix.app }}
         id: build-and-push
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09
+        if: env.CHANGED == 'true'
         with:
           context: .
           file: ./dockerization/${{ matrix.app }}/Dockerfile
@@ -85,4 +102,7 @@ jobs:
             cd ~/toyan_bot;
             docker compose pull;
             docker compose up -d;
+          
+            docker container prune -f;
+            docker image prune -f;
           "
