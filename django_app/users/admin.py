@@ -43,6 +43,7 @@ class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ('callsign', 'telegram_id', 'team', 'is_commander', 'responsible_person',
                     'is_active', 'is_banned', 'is_admin', 'date_joined')
     search_fields = ('callsign',)
+    search_help_text = _('Введите позывной')
     list_filter = ('team', 'is_commander', 'responsible_person', 'is_admin', 'is_active')
 
     def save_model(self, request, obj, form, change) -> None:  # noqa: ANN001
