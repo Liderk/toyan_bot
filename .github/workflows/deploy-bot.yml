@@ -1,9 +1,8 @@
 name: Deploy in Docker
 on:
-#  push:
-#        branches: [ "master" ]
-#    tags:
-#      - '*'
+  push:
+    tags:
+      - '*'
   workflow_dispatch:
 
 env:
@@ -25,6 +24,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Check for changes in source code
+        run: |
+          DIR=""
+          CHANGED_FILES=$(git show --name-only --pretty=format:)
+          
+          if [ "${{ matrix.app }}" == "backend" ]; then
+            DIR="./django_app"
+          elif [ "${{ matrix.app }}" == "bot" ]; then
+            DIR="./telegram_app"
+          fi
+          
+          if (echo "$CHANGED_FILES" | grep -q "./dockerization/${{ matrix.app }}") || \
+            { [ -n "$DIR" ] && echo "$CHANGED_FILES" | grep -q "$DIR"; }; then
+            echo "CHANGED=true" >> $GITHUB_ENV
+          fi
 
       - name: Install cosign
         if: github.event_name != 'pull_request'
@@ -55,6 +70,7 @@ jobs:
       - name: Build and push Docker image for ${{ matrix.app }}
         id: build-and-push
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09
+        if: env.CHANGED == 'true'
         with:
           context: .
           file: ./dockerization/${{ matrix.app }}/Dockerfile
@@ -81,9 +97,12 @@ jobs:
       - name: Rerun app
         if: github.event_name != 'pull_request'
         run: |
-          ssh -i $(pwd)/secret_key -o StrictHostKeyChecking=no app@212.109.218.91 "
+          ssh -i $(pwd)/secret_key -o StrictHostKeyChecking=no -p 2707 app@212.109.218.91 "
             docker login ghcr.io --username=${{ github.actor }} --password=${{ secrets.GITHUB_TOKEN }};
             cd ~/toyan_bot;
             docker compose pull;
             docker compose up -d;
+          
+            docker container prune -f;
+            docker image prune -f;
           "
