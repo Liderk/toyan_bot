@@ -29,14 +29,15 @@ jobs:
         run: |
           DIR=""
           CHANGED_FILES=$(git show --name-only --pretty=format:)
+          echo $CHANGED_FILES
           
           if [ "${{ matrix.app }}" == "backend" ]; then
-            DIR="./django_app"
+            DIR="django_app"
           elif [ "${{ matrix.app }}" == "bot" ]; then
-            DIR="./telegram_app"
+            DIR="telegram_app"
           fi
           
-          if (echo "$CHANGED_FILES" | grep -q "./dockerization/${{ matrix.app }}") || \
+          if (echo "$CHANGED_FILES" | grep -q "dockerization/${{ matrix.app }}") || \
             { [ -n "$DIR" ] && echo "$CHANGED_FILES" | grep -q "$DIR"; }; then
             echo "CHANGED=true" >> $GITHUB_ENV
           fi
