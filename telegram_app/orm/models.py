@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, TIMESTAMP, DATETIME, SmallInteger, ForeignKey
+from sqlalchemy import Integer, String, Boolean, DATETIME, SmallInteger, ForeignKey, \
+    BigInteger
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship, backref
 
 Base = declarative_base()
@@ -19,7 +20,7 @@ class Team(Base):
 class TelegramUser(Base):
     __tablename__ = 'users_telegramuser'
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     team_id: Mapped[int] = mapped_column(Integer, ForeignKey('users_team.id'))
     team_rel: Mapped[Team] = relationship('Team')
     is_active: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -27,7 +28,7 @@ class TelegramUser(Base):
     date_joined: Mapped[datetime] = mapped_column(DATETIME, nullable=False)
     is_commander: Mapped[bool] = mapped_column(Boolean, default=False)
     responsible_person: Mapped[bool] = mapped_column(Boolean, default=False)
-    telegram_id: Mapped[int] = mapped_column(Integer)
+    telegram_id: Mapped[int] = mapped_column(BigInteger)
     telegram_username: Mapped[str] = mapped_column(String(256))
     callsign: Mapped[str] = mapped_column(String(256))
     is_banned: Mapped[bool] = mapped_column(Boolean, default=False)
