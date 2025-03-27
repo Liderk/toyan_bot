@@ -27,5 +27,5 @@ MEDIA_ROOT = env_config('MEDIA_ROOT', cast=str, default='/var/www/media')
 
 # apscheduler settings
 TIMEZONE = env_config('TIMEZONE', cast=str, default='Asia/Novosibirsk')
-START_HOUR = env_config('START_HOUR', cast=int, default=10)  # время по UTC
+START_HOUR = env_config('START_HOUR', cast=int, default=10)
 START_MINUTES = env_config('START_MINUTES', cast=int, default=0)
