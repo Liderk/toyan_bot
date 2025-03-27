@@ -26,5 +26,6 @@ POSTGRES_HOST = env_config('POSTGRES_HOST', cast=str, default='192.168.1.90')
 MEDIA_ROOT = env_config('MEDIA_ROOT', cast=str, default='/var/www/media')
 
 # apscheduler settings
-START_HOUR = env_config('START_HOUR', cast=int, default=3)  # время по UTC
+TIMEZONE = env_config('TIMEZONE', cast=str, default='Asia/Novosibirsk')
+START_HOUR = env_config('START_HOUR', cast=int, default=10)  # время по UTC
 START_MINUTES = env_config('START_MINUTES', cast=int, default=0)
