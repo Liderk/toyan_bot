@@ -19,17 +19,25 @@ jobs:
       id-token: write
     strategy:
       matrix:
-        app: [ "backend", "bot", "nginx", "portainer", "postgres" ]
+        app: [
+          "backend",
+          "bot",
+          "nginx",
+          "portainer",
+          "postgres"
+        ]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: '2'
 
       - name: Check for changes in source code
         run: |
           DIR=""
           CHANGED_FILES=$(git show --name-only --pretty=format:)
-          echo $CHANGED_FILES
+          echo "changed files: \n $CHANGED_FILES"
           
           if [ "${{ matrix.app }}" == "backend" ]; then
             DIR="django_app"
