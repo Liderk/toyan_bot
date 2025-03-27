@@ -1,5 +1,7 @@
 import asyncio
 from aiogram.types import BotCommand, BotCommandScopeDefault
+
+from config import settings
 from init_bot import bot, dp, scheduler
 from handlers.main import main_router
 from handlers.admin import admin_router
@@ -37,7 +39,7 @@ async def on_shutdown() -> None:
 
 async def main():
 
-    scheduler.add_job(send_notifications, 'cron', hour=20, minute=53)
+    scheduler.add_job(send_notifications, 'cron', hour=settings.START_HOUR, minute=settings.START_MINUTES)
     scheduler.start()
     dp.startup.register(on_startup)
     dp.shutdown.register(on_shutdown)
