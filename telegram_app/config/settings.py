@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 from decouple import AutoConfig
-from django.template.defaultfilters import default
 
 if os.environ.get('READ_FROM_ENV') == 'True':
     env_path = Path(__file__).parent.parent / '.env'
