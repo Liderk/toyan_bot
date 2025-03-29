@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 from decouple import AutoConfig
+from django.template.defaultfilters import default
 
 if os.environ.get('READ_FROM_ENV') == 'True':
     env_path = Path(__file__).parent.parent / '.env'
@@ -15,6 +16,7 @@ DEBUG = env_config('DEBUG', default=False, cast=bool)
 CHAT_ID = env_config('CHAT_ID', cast=int)
 GROUP_ID = env_config('GROUP_ID', cast=int)
 BOT_NAME = env_config('BOT_NAME', cast=str)
+PROJECT_TZ = env_config('PROJECT_TZ', cast=str, default='Asia/Novosibirsk')
 
 # db settings
 POSTGRES_DB = env_config('POSTGRES_DB', cast=str, default='postgres')

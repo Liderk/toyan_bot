@@ -7,18 +7,21 @@ from config import settings
 from orm.models import Games
 from scheduler.handlers.notifications.base import INotification
 from scheduler.handlers.notifications.utils import file_to_byte
+from utils.common import format_datetime_to_project_tz_str
 
 
 class GameNotificator(INotification):
     model: type[Games] = Games
 
     def prepare_message_text(self, obj: Games) -> str:
+        start_date = format_datetime_to_project_tz_str(obj.start_date)
+        end_date = format_datetime_to_project_tz_str(obj.end_date)
         return (
-            f"Напоминаю, что {obj.start_date.strftime('%Y-%m-%d %H:%M')} состоится игра:\n"
+            f"Напоминаю, что {start_date} состоится игра:\n"
             f"🔫 <b>Название игры:</b> {obj.name}\n"
             f"📝 <b>Описание:</b> {obj.descriptions}\n"
-            f"📅 <b>Дата начала:</b> {obj.start_date.strftime('%Y-%m-%d %H:%M')}\n"
-            f"📅 <b>Дата окончания:</b> {obj.end_date.strftime('%Y-%m-%d %H:%M')}\n"
+            f"📅 <b>Дата начала:</b> {start_date}\n"
+            f"📅 <b>Дата окончания:</b> {end_date}\n"
             f"👤 <b>Организаторы:</b> {obj.organizers}\n"
             f"🏙️ <b>Город:</b> {obj.city}\n"
             f"📍 <b>Место проведения:</b> {obj.game_area}\n"

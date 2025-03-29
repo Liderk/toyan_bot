@@ -18,7 +18,7 @@ from utils.constants import Commands, MainKeyboardCommands, EventsInfo, InfoExte
 
 from utils.detailazers import GameDetailizer, EventDetailizer
 
-from utils.common import send_message, process_send_detail_message
+from utils.common import send_message, process_send_detail_message, format_datetime_to_project_tz_str
 
 info_router = Router()
 info_router.message.filter(
@@ -31,7 +31,7 @@ async def get_nearest_event_data():
     if event is None:
         return f'Ближайших мероприятий нет'
     event_type = await EventManager.get_by_id(event.event_type)
-    event_date = event.start_date.strftime('%H:%M %d.%m.%Y')
+    event_date = format_datetime_to_project_tz_str(event.start_date)
     return (f'Название: {event.name}\n'
             f'Тип события: {event_type}\n'
             f'Место: {event.location}\n'
@@ -43,7 +43,7 @@ async def get_nearest_game_data():
     game = await get_nearest_game()
     if game is None:
         return f'Ближайших игр нет'
-    start_date = game.start_date.strftime('%H:%M %d.%m.%Y')
+    start_date = format_datetime_to_project_tz_str(game.start_date)
     return (f'Название: {game.name}\n'
             f'Большая игра: {"Да" if game.big else "Нет"}\n'
             f'Дата начала: {start_date}\n'
@@ -56,14 +56,14 @@ async def get_nearest_game_data():
 async def get_data_for_games_by_current_month():
     games = await get_games_by_current_month()
     return '\n-----\n'.join([f'{index}. {game.name}, '
-                             f'{game.start_date.strftime("%H:%M %d.%m.%Y")}, '
+                             f'{format_datetime_to_project_tz_str(game.start_date)}, '
                              f'{game.city}' for index, game in enumerate(games, start=1)])
 
 
 async def get_data_for_all_games():
     games = await get_all_upcoming_games()
     return '\n-----\n'.join([f'{index}. {game.name}, '
-                             f'{game.start_date.strftime("%H:%M %d.%m.%Y")}, '
+                             f'{format_datetime_to_project_tz_str(game.start_date)}, '
                              f'{game.city}' for index, game in enumerate(games, start=1)])
 
 
@@ -72,7 +72,7 @@ async def get_data_for_events_by_current_month():
     return '\n-----\n'.join([f'{index}. {event.name}, '
                              f'{await EventManager.get_by_id(event.event_type)}, '
                              f'{event.descriptions}, '
-                             f'{event.start_date.strftime("%H:%M %d.%m.%Y")}'
+                             f'{format_datetime_to_project_tz_str(event.start_date)}'
                              for index, event in enumerate(events, start=1)])
 
 
@@ -82,7 +82,7 @@ async def get_data_for_all_upcoming_events():
     return '\n-----\n'.join([f'{index}. {event.name}, '
                              f'{await EventManager.get_by_id(event.event_type)}, '
                              f'{event.descriptions}, '
-                             f'{event.start_date.strftime("%H:%M %d.%m.%Y")}'
+                             f'{format_datetime_to_project_tz_str(event.start_date)}'
                              for index, event in enumerate(events, start=1)])
 
 
@@ -125,7 +125,7 @@ async def info_detail(call: CallbackQuery, state: FSMContext):
     data = await info_data.get('answer')()
     msg_text = f'<b>{info_data.get(Commands.MENU)}</b>\n\n' \
                f'{data}\n\n' \
-               f'Для подробной информации укажи цифру'
+               f'Для подробной информации укажи введи цифру, для отмены нажми "Вернуться"'
     async with ChatActionSender(bot=bot, chat_id=call.from_user.id, action="typing"):
         await asyncio.sleep(2)
         await call.message.answer(msg_text, reply_markup=detail_inline_kb())

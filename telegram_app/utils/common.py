@@ -1,5 +1,7 @@
 from collections.abc import Generator, Callable
+from datetime import datetime
 
+import pytz
 from aiogram.types import InputMediaDocument, Message
 
 from config import settings
@@ -42,3 +44,22 @@ async def send_message(chat_id: int, message_text: str, media: list[InputMediaDo
         InMemoryMessageIdStorage.add_msg(msg.message_id, MsgAction.delete)
 
 
+def format_datetime_to_project_tz_str(dt: datetime) -> str:
+    """
+    Приводит объект datetime к часовому поясу settings.PROJECT_TZ'
+    и возвращает строку в формате 'дд-мм-ГГГГ ЧЧ:ММ'.
+
+    Параметры:
+        dt (datetime): Исходный объект datetime (может быть наивным или с часовым поясом)
+
+    Возвращает:
+        str: Дата и время в формате 'дд-мм-ГГГГ ЧЧ:ММ' (Asia/Novosibirsk)
+    """
+    nsk_tz = pytz.timezone(settings.PROJECT_TZ)
+
+    if dt.tzinfo is None:
+        dt = pytz.utc.localize(dt)
+
+    dt_nsk = dt.astimezone(nsk_tz)
+
+    return dt_nsk.strftime('%d-%m-%Y %H:%M')
