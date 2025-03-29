@@ -3,6 +3,7 @@ from datetime import datetime
 
 import pytz
 from aiogram.types import InputMediaDocument, Message
+from sqlalchemy.util import await_only
 
 from config import settings
 from handlers.utils import InMemoryMessageIdStorage
@@ -26,8 +27,12 @@ async def process_send_detail_message(obj_func: Callable, message: Message, msg_
         return False
 
     required_obj = objs[obj_index]
-    msg_text = msg_detailizer.prepare_message_text(required_obj)
-    msg_files = msg_detailizer.prepare_message_files(required_obj, msg_text)
+    await simple_send_detail_message(required_obj, message, msg_detailizer)
+
+
+async def simple_send_detail_message(obj, message: Message, msg_detailizer: IDetailizer):
+    msg_text = msg_detailizer.prepare_message_text(obj)
+    msg_files = msg_detailizer.prepare_message_files(obj, msg_text)
     await send_message(message.chat.id, msg_text, msg_files)
     return True
 

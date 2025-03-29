@@ -18,7 +18,8 @@ from utils.constants import Commands, MainKeyboardCommands, EventsInfo, InfoExte
 
 from utils.detailazers import GameDetailizer, EventDetailizer
 
-from utils.common import send_message, process_send_detail_message, format_datetime_to_project_tz_str
+from utils.common import send_message, process_send_detail_message, format_datetime_to_project_tz_str, \
+    simple_send_detail_message
 
 info_router = Router()
 info_router.message.filter(
@@ -30,27 +31,16 @@ async def get_nearest_event_data():
     event = await get_nearest_event()
     if event is None:
         return f'Ближайших мероприятий нет'
-    event_type = await EventManager.get_by_id(event.event_type)
-    event_date = format_datetime_to_project_tz_str(event.start_date)
-    return (f'Название: {event.name}\n'
-            f'Тип события: {event_type}\n'
-            f'Место: {event.location}\n'
-            f'Описание: {event.descriptions}\n'
-            f'Дата начала: {event_date}')
+    detailizer = EventDetailizer()
+    return {'item': event, 'detailizer': detailizer}
 
 
 async def get_nearest_game_data():
     game = await get_nearest_game()
     if game is None:
         return f'Ближайших игр нет'
-    start_date = format_datetime_to_project_tz_str(game.start_date)
-    return (f'Название: {game.name}\n'
-            f'Большая игра: {"Да" if game.big else "Нет"}\n'
-            f'Дата начала: {start_date}\n'
-            f'Город: {game.city}\n'
-            f'Полигон: {game.game_area}\n'
-            f'Командующий Тоян: {game.toyan_commander}\n'
-            f'Командующий стороны: {game.side_commander}')
+    detailizer = GameDetailizer()
+    return {'item': game, 'detailizer': detailizer}
 
 
 async def get_data_for_games_by_current_month():
@@ -123,11 +113,18 @@ async def info_detail(call: CallbackQuery, state: FSMContext):
     info_id = int(call.data.replace(f'{Commands.MENU}_', ''))
     info_data = INFO_MENU[info_id]
     data = await info_data.get('answer')()
+    if info_id in (1, 2):
+        async with ChatActionSender(bot=bot, chat_id=call.from_user.id, action="typing"):
+            await asyncio.sleep(1)
+            await simple_send_detail_message(data['item'], call.message, data['detailizer'])
+            await state.clear()
+            return
+
     msg_text = f'<b>{info_data.get(Commands.MENU)}</b>\n\n' \
                f'{data}\n\n' \
                f'Для подробной информации укажи введи цифру, для отмены нажми "Вернуться"'
     async with ChatActionSender(bot=bot, chat_id=call.from_user.id, action="typing"):
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
         await call.message.answer(msg_text, reply_markup=detail_inline_kb())
     await state.set_state(info_data['state'])
 
