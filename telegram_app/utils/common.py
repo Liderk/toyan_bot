@@ -1,16 +1,14 @@
-from collections.abc import Generator, Callable
+from collections.abc import Callable
 from datetime import datetime
 
 import pytz
 from aiogram.types import InputMediaDocument, Message
-from sqlalchemy.util import await_only
 
 from config import settings
 from handlers.utils import InMemoryMessageIdStorage
 from init_bot import bot
 from utils.constants import MsgAction
-
-from utils.detailazers import IDetailizer
+from utils.detailizer_interface import IDetailizer
 
 
 async def process_send_detail_message(obj_func: Callable, message: Message, msg_detailizer: IDetailizer):

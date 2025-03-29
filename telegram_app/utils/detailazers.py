@@ -1,5 +1,4 @@
 import os
-from abc import abstractmethod, ABC
 
 from aiogram.types import InputMediaDocument, BufferedInputFile
 
@@ -7,16 +6,7 @@ from config import settings
 from orm.models import Games, Event, EventChoices
 from scheduler.handlers.notifications.utils import file_to_byte
 from utils.common import format_datetime_to_project_tz_str
-
-
-class IDetailizer(ABC):
-    @abstractmethod
-    def prepare_message_text(self, obj: (Games, Event)) -> str:
-        pass
-
-    @abstractmethod
-    def prepare_message_files(self, game: (Games, Event), message_text: str) -> list:
-        pass
+from utils.detailizer_interface import IDetailizer
 
 
 class GameDetailizer(IDetailizer):
