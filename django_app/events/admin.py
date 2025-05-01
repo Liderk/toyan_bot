@@ -18,9 +18,6 @@ class GamesAdmin(admin.ModelAdmin):
     list_display = ('name', 'descriptions', 'start_date', 'end_date', 'big',
                     'city', 'game_area', 'side_commander', 'toyan_commander')
     readonly_fields = ('game_map_preview', 'location_map_preview')
-    fields = ('name', 'descriptions', 'start_date', 'end_date', 'organizers',
-              'big', 'city', 'game_area', 'side_commander', 'toyan_commander',
-              'game_map', 'game_map_preview', 'location_map', 'location_map_preview')
 
     inlines = (GameEventNotificationSchedulerInline,)
 
@@ -47,6 +44,7 @@ class GamesAdmin(admin.ModelAdmin):
 @admin.register(Event)
 class EventsAdmin(admin.ModelAdmin):
     list_display = ('name', 'event_type', 'descriptions', 'location', 'organizers', 'start_date', 'end_date')
+    readonly_fields = ('location_map_preview',)
     inlines = (GameEventNotificationSchedulerInline,)
 
     def formfield_for_dbfield(self, db_field, **kwargs):
@@ -59,7 +57,7 @@ class EventsAdmin(admin.ModelAdmin):
             return '-'
         return get_full_image_link(obj.location_map.url)
 
-    location_map_preview.short_description = 'Превью схемы проезда'
+    location_map_preview.short_description = 'Превью схемы проезда/карты'
 
 
 @admin.register(NotificationPeriod)

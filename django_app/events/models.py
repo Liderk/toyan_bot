@@ -58,6 +58,24 @@ class Games(models.Model):
         blank=True,
         null=True,
     )
+    gpx = models.FileField(
+        upload_to='files/gpx',
+        verbose_name='Файл *.gpx',
+        blank=True,
+        null=True,
+    )
+    kmz = models.FileField(
+        upload_to='files/kmz',
+        verbose_name='Файл *.kmz',
+        blank=True,
+        null=True,
+    )
+    kml = models.FileField(
+        upload_to='files/kml',
+        verbose_name='Файл *.kml',
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = 'Игра'
@@ -102,6 +120,24 @@ class Event(models.Model):
     location_map = models.ImageField(
         upload_to='images/location_map',
         verbose_name='Карта проезда',
+        blank=True,
+        null=True,
+    )
+    gpx = models.FileField(
+        upload_to='files/gpx',
+        verbose_name='Файл *.gpx',
+        blank=True,
+        null=True,
+    )
+    kmz = models.FileField(
+        upload_to='files/kmz',
+        verbose_name='Файл *.kmz',
+        blank=True,
+        null=True,
+    )
+    kml = models.FileField(
+        upload_to='files/kml',
+        verbose_name='Файл *.kml',
         blank=True,
         null=True,
     )
