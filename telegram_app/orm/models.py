@@ -50,6 +50,9 @@ class Games(Base):
     toyan_commander: Mapped[str] = mapped_column(String(50), nullable=True)
     game_map: Mapped[str] = mapped_column(String, nullable=True)
     location_map: Mapped[str] = mapped_column(String, nullable=True)
+    gpx: Mapped[str] = mapped_column(String, nullable=True)
+    kmz: Mapped[str] = mapped_column(String, nullable=True)
+    kml: Mapped[str] = mapped_column(String, nullable=True)
 
 
 class EventChoices:
@@ -69,6 +72,9 @@ class Event(Base):
     start_date: Mapped[datetime] = mapped_column(DATETIME, nullable=False)
     end_date: Mapped[datetime] = mapped_column(DATETIME, nullable=False)
     location_map: Mapped[str] = mapped_column(String, nullable=True)
+    gpx: Mapped[str] = mapped_column(String, nullable=True)
+    kmz: Mapped[str] = mapped_column(String, nullable=True)
+    kml: Mapped[str] = mapped_column(String, nullable=True)
 
 
 # Модель PeriodChoices (перечисление)

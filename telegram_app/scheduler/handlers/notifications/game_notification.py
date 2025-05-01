@@ -43,4 +43,19 @@ class GameNotificator(INotification):
             media_file = InputMediaDocument(media=BufferedInputFile(file_to_byte(map_file), map_file))
             files.append(media_file)
 
+        if game.gpx:
+            file_path = os.path.join(settings.MEDIA_ROOT, game.gpx)
+            gpx_file = InputMediaDocument(media=BufferedInputFile(file_to_byte(file_path), file_path))
+            files.append(gpx_file)
+
+        if game.kmz:
+            file_path = os.path.join(settings.MEDIA_ROOT, game.kmz)
+            kmz_file = InputMediaDocument(media=BufferedInputFile(file_to_byte(file_path), file_path))
+            files.append(kmz_file)
+
+        if game.kml:
+            file_path = os.path.join(settings.MEDIA_ROOT, game.kml)
+            kml_file = InputMediaDocument(media=BufferedInputFile(file_to_byte(file_path), file_path))
+            files.append(kml_file)
+
         return files

@@ -35,4 +35,19 @@ class EventNotificator(INotification):
                                             caption=message_text)
             files.append(media_file)
 
+        if obj.gpx:
+            file_path = os.path.join(settings.MEDIA_ROOT, obj.gpx)
+            gpx_file = InputMediaDocument(media=BufferedInputFile(file_to_byte(file_path), file_path))
+            files.append(gpx_file)
+
+        if obj.kmz:
+            file_path = os.path.join(settings.MEDIA_ROOT, obj.kmz)
+            kmz_file = InputMediaDocument(media=BufferedInputFile(file_to_byte(file_path), file_path))
+            files.append(kmz_file)
+
+        if obj.kml:
+            file_path = os.path.join(settings.MEDIA_ROOT, obj.kml)
+            kml_file = InputMediaDocument(media=BufferedInputFile(file_to_byte(file_path), file_path))
+            files.append(kml_file)
+
         return files
