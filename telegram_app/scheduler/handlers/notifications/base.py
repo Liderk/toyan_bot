@@ -1,8 +1,7 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from datetime import datetime, timedelta
 
 import pytz
-from aiogram.types import InputMediaDocument
 from sqlalchemy import update, select, and_
 
 from config import settings
@@ -12,9 +11,10 @@ from orm.models import NotificationPeriod, Event, Games, GameEventNotification, 
 from orm.utils import get_all_users_ids_for_broadcast
 
 from utils.common import send_message
+from utils.detailizer_interface import IDetailizer
 
 
-class INotification(ABC):
+class INotification(IDetailizer, ABC):
     model: type[Event | Games] = None
 
     async def run(self):
@@ -63,20 +63,12 @@ class INotification(ABC):
 
     async def process_send_message(self, obj: (Event | Games), notification_data: GameEventNotification):
         message_text = self.prepare_message_text(obj)
-        message_files = self.prepare_message_files(obj, message_text)
+        message_files = self.prepare_message_files(obj, message_text=f'Файлы к {obj.name}')
         chat_ids = await self.get_chat_ids(notification_data)
         for chat_id in chat_ids:
             await send_message(chat_id, message_text,
                                message_files,
                                message_with_comment=notification_data.allow_discussion)
-
-    @abstractmethod
-    def prepare_message_files(self, obj: (Event | Games), message_text: str) -> list[InputMediaDocument]:
-        pass
-
-    @abstractmethod
-    def prepare_message_text(self, obj: (Event | Games)) -> str:
-        pass
 
     @staticmethod
     async def set_notification_mark(notification_obj: GameEventNotification):
