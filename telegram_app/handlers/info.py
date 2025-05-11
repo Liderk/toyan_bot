@@ -18,7 +18,7 @@ from utils.constants import Commands, MainKeyboardCommands, EventsInfo, InfoExte
 
 from utils.detailazers import GameDetailizer, EventDetailizer
 
-from utils.common import send_message, process_send_detail_message, format_datetime_to_project_tz_str, \
+from utils.common import process_send_detail_message, format_datetime_to_project_tz_str, \
     simple_send_detail_message
 
 info_router = Router()
@@ -45,35 +45,52 @@ async def get_nearest_game_data():
 
 async def get_data_for_games_by_current_month():
     games = await get_games_by_current_month()
-    return '\n-----\n'.join([f'{index}. {game.name}, '
-                             f'{format_datetime_to_project_tz_str(game.start_date)}, '
-                             f'{game.city}' for index, game in enumerate(games, start=1)])
+    games_data = [f'{index}. {game.name}, '
+                  f'{format_datetime_to_project_tz_str(game.start_date)}, '
+                  f'{game.city}' for index, game in enumerate(games, start=1)]
+
+    if not games_data:
+        return '\nНет запланированных игры\n'
+    return '\n-----\n'.join(games_data)
 
 
 async def get_data_for_all_games():
     games = await get_all_upcoming_games()
-    return '\n-----\n'.join([f'{index}. {game.name}, '
-                             f'{format_datetime_to_project_tz_str(game.start_date)}, '
-                             f'{game.city}' for index, game in enumerate(games, start=1)])
+    games_data = [f'{index}. {game.name}, '
+                  f'{format_datetime_to_project_tz_str(game.start_date)}, '
+                  f'{game.city}' for index, game in enumerate(games, start=1)]
+
+    if not games_data:
+        return '\nНет запланированных игры\n'
+    return '\n-----\n'.join(games_data)
 
 
 async def get_data_for_events_by_current_month():
     events = await get_events_by_current_month()
-    return '\n-----\n'.join([f'{index}. {event.name}, '
-                             f'{await EventManager.get_by_id(event.event_type)}, '
-                             f'{event.descriptions}, '
-                             f'{format_datetime_to_project_tz_str(event.start_date)}'
-                             for index, event in enumerate(events, start=1)])
+    events_data = [f'{index}. {event.name}, '
+                   f'{await EventManager.get_by_id(event.event_type)}, '
+                   f'{event.descriptions}, '
+                   f'{format_datetime_to_project_tz_str(event.start_date)}'
+                   for index, event in enumerate(events, start=1)]
+
+    if not events_data:
+        return '\nНет запланированных мероприятий\n'
+
+    return '\n-----\n'.join(events_data)
 
 
 async def get_data_for_all_upcoming_events():
     events = await get_all_upcoming_events()
 
-    return '\n-----\n'.join([f'{index}. {event.name}, '
-                             f'{await EventManager.get_by_id(event.event_type)}, '
-                             f'{event.descriptions}, '
-                             f'{format_datetime_to_project_tz_str(event.start_date)}'
-                             for index, event in enumerate(events, start=1)])
+    events_data = [f'{index}. {event.name}, '
+                   f'{await EventManager.get_by_id(event.event_type)}, '
+                   f'{format_datetime_to_project_tz_str(event.start_date)}'
+                   for index, event in enumerate(events, start=1)]
+
+    if not events_data:
+        return '\nНет запланированных мероприятий\n'
+
+    return '\n-----\n'.join(events_data)
 
 
 class Form(StatesGroup):
@@ -120,9 +137,10 @@ async def info_detail(call: CallbackQuery, state: FSMContext):
             await state.clear()
             return
 
-    msg_text = f'<b>{info_data.get(Commands.MENU)}</b>\n\n' \
-               f'{data}\n\n' \
-               f'Для подробной информации укажи введи цифру, для отмены нажми "Вернуться"'
+    msg_text = (f'<b>{info_data.get(Commands.MENU)}</b>\n\n'
+                f'{data}\n\n'
+                f'<i>Для подробной информации введи номер игры/события следующим сообщением.</i>\n '
+                f'<i>Для отмены нажми "Вернуться"</i>')
     async with ChatActionSender(bot=bot, chat_id=call.from_user.id, action="typing"):
         await asyncio.sleep(1)
         await call.message.answer(msg_text, reply_markup=detail_inline_kb())
