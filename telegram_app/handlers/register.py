@@ -94,7 +94,7 @@ async def capture_commander(message: Message, state: FSMContext):
         msg_text = (f'Позывной: <b>{data.get("callsign")}</b>, \n'
                     f'Команда: <b>{team}</b>, \n'
                     f'Роль в команде: <b>{team_role.rank}</b>. \n\n'
-                    f'Заявка на регистрацию принята.')
+                    f'Заявка на регистрацию принята к рассмотрению.')
 
         data['is_commander'] = data['command_role'] == COMMANDER.marker
         data['responsible_person'] = data['command_role'] == COMMANDER_ASSISTANT.marker
