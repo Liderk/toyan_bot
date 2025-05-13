@@ -77,7 +77,7 @@ async def get_all_upcoming_games() -> list[Games]:
 async def get_events_by_current_month() -> list[Event]:
     now = datetime.now(tz=pytz.timezone('Asia/Novosibirsk'))
 
-    end_of_month = datetime(now.year, now.month + 1, 1) - timedelta(days=1)
+    end_of_month = datetime(now.year, now.month + 1, 1, hour=23, minute=59, second=59) - timedelta(days=1)
 
     stmt = select(Event).order_by(Event.start_date).filter(
         and_(Event.start_date >= now, Event.start_date <= end_of_month)
@@ -98,7 +98,7 @@ async def get_all_upcoming_events() -> list[Games]:
 async def get_games_by_current_month() -> list[Games]:
     now = datetime.now(tz=pytz.timezone('Asia/Novosibirsk'))
 
-    end_of_month = datetime(now.year, now.month + 1, 1) - timedelta(days=1)
+    end_of_month = datetime(now.year, now.month + 1, 1, hour=23, minute=59, second=59) - timedelta(days=1)
 
     stmt = select(Games).order_by(Games.start_date).filter(
         and_(Games.start_date >= now, Games.start_date <= end_of_month)
